@@ -29,6 +29,8 @@ import numpy as np
 
 from shapely.geometry import Point, Polygon
 
+from abc import ABCMeta, abstractmethod
+
 from cohrint_core.robo_tools.pose import Pose
 from cohrint_core.robo_tools.planner import (MissionPlanner,
                                              GoalPlanner,
@@ -39,6 +41,7 @@ from cohrint_core.map_tools.map_elements import MapObject
 
 
 class Robot(object):
+    __metaclass__ = ABCMeta
     """Class definition for the generic robot object.
 
     .. image:: img/classes_Robot.png
@@ -50,19 +53,11 @@ class Robot(object):
     pose : array_like, optional
         The robot's initial [x, y, theta] in [m,m,degrees] (defaults to
         [0, 0.5, 0]).
-    map_name : str, optional
-        The name of the map (defaults to 'fleming').
-    role : {'robber','cop'}, optional
-        The robot's role in the cops and robbers game.
-    status : two-element list of strings, optional
-        The robot's initial mission status and movement status. Cops and
-        robbers share possible movement statuses, but their mission statuses
-         differ entirely. Defaults to ['on the run', 'without a goal'].
-    planner_type: {'simple', 'particle', 'MAP'}, optional
-        The robot's type of planner.
-    consider_others : bool, optional
-        Whether this robot generates other robot models (e.g. the primary cop
-        will imagine other robots moving around.) Defaults to false.
+    pose_source : str
+        The robots pose source. Either  a rostopic name, like 'odom' or
+        'tf', or 'python'
+    color_str : str
+        The color of the robots map object
     **kwargs
         Arguments passed to the ``MapObject`` attribute.
 
@@ -118,10 +113,10 @@ class Robot(object):
         # <>TODO: fix this horrible hack
         create_diameter = 0.34
         if self.name == 'Deckard':
-            pose = [0, 0, -np.pi/4]
+            pose = [0, 0, -np.pi / 4]
             r = create_diameter / 2
             n_sides = 4
-            pose = [0, 0, -np.pi/4]
+            pose = [0, 0, -np.pi / 4]
             x = [r * np.cos(2 * np.pi * n / n_sides + pose[2]) + pose[0]
                  for n in range(n_sides)]
             y = [r * np.sin(2 * np.pi * n / n_sides + pose[2]) + pose[1]
@@ -139,6 +134,7 @@ class Robot(object):
         """
         self.map_obj.move_absolute(self.pose2D.pose)
 
+    @abstractmethod
     def update(self, i=0):
         """Update all primary functionality of the robot.
 
@@ -150,11 +146,7 @@ class Robot(object):
         i : int, optional
             The current animation frame. Default is 0 for non-animated robots.
 
-        Returns
-        -------
-        tuple or None
-            `None` if the robot does not generate an animation packet, or a
-            tuple of all animation parameters otherwise.
+
         """
         # <>TODO: @Matt Figure out how to move this back to pose class.
         if self.pose_source == 'tf':

@@ -31,6 +31,8 @@ from itertools import chain
 import numpy as np
 from shapely.geometry import Point, LineString
 
+from abc import ABCMeta, abstractmethod
+
 import cohrint_core.robo_tools.a_star as a_star
 from cohrint_core.map_tools.occupancy_layer import OccupancyLayer
 from cohrint_core.fusion_tools.gaussian_mixture import GaussianMixture
@@ -38,6 +40,7 @@ from cohrint_core.fusion_tools.variational_bayes import VariationalBayes
 
 
 class MissionPlanner(object):
+    __metaclass__ = ABCMeta
     """The MissionPlanner is responsible for high level planning.
 
 
@@ -68,6 +71,7 @@ class MissionPlanner(object):
                                          [0, 0]]))
         return test_trajectory
 
+    @abstractmethod
     def update(self):
         """Updates the MissionPlanner.
 

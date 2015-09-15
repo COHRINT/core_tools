@@ -15,6 +15,7 @@ __maintainer__ = "Nick Sweet"
 __email__ = "nick.sweet@colorado.edu"
 __status__ = "Development"
 
+from abc import ABCMeta, abstractmethod
 import logging
 import matplotlib.pyplot as plt
 
@@ -22,6 +23,7 @@ import matplotlib.pyplot as plt
 
 
 class Layer(object):
+    __metaclass__ = ABCMeta
     """A collection of generic layer parameters and functions.
 
     .. image:: img/classes_Layer.png
@@ -33,8 +35,7 @@ class Layer(object):
         [-5, -5, 5, 5].
     visible : bool, optional
         Whether or not the layer is shown when plotting.
-    target : str, optional
-        Name of target tracked by this layer. Defaults to `''`.
+        To be used for toggling layers.
     ax : axes handle, optional
         The axes to be used for plotting. Defaults to current axes.
     alpha : float, optional
@@ -43,7 +44,7 @@ class Layer(object):
         The colormap string for the layer. Defaults to `'jet'`.
 
     """
-    def __init__(self, bounds=[-5, -5, 5, 5], visible=True, target='',
+    def __init__(self, bounds=[-5, -5, 5, 5], visible=True,
                  fig=None, ax=None, alpha=0.8, cmap_str='jet'):
         if fig is None:
             fig = plt.gcf()
@@ -54,6 +55,45 @@ class Layer(object):
 
         self.bounds = bounds  # [xmin,ymin,xmax,ymax] in [m]
         self.visible = visible
-        self.target = target
         self.alpha = alpha
         self.cmap = plt.cm.get_cmap(cmap_str)
+
+    @abstractmethod
+    def plot(self):
+        """Plots the layer on the axis.
+
+        This function adds a new layer to the axis. It often takes parameters,
+        such as a dictionary of shapes, or a probability distribution.
+        Matplotlib is the go to plotting module.
+
+        It is generally used in the update function for animations,
+        but can also be used to plot static images for testing or
+        other purposes.
+        """
+        pass
+
+    @abstractmethod
+    def remove(self):
+        """Removes the layer from the axis.
+
+        This function must be able to remove everything that plot adds. It
+        may have logic to leave certain parts on, as is in the case of the
+        shape_layer.
+
+        It is generally used in the update function for animations,
+        but can also be used to remove a layer entirely.
+        """
+        pass
+
+    @abstractmethod
+    def update(self, i=0):
+        """Provides the animation update function for this layer
+
+        This function generally calls remove() first to remove some or
+        all of the previously plotted objects. Then plot() adds the new or
+        updated objects.
+
+        i counts from 0 at the start of the animation, and can be used to
+        schedule certain things.
+        """
+        pass

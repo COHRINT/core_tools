@@ -49,7 +49,7 @@ class ShapeLayer(Layer):
 
         #<>TODO: plot or not
 
-    def update_plot(self, elements=None, update_static=None, **kwargs):
+    def plot(self, elements=None, update_static=None, **kwargs):
         """Plot all visible map objects (and their relations, if visible).
 
         Parameters
@@ -122,9 +122,9 @@ class ShapeLayer(Layer):
         # on the first iteration of the animation
         self.remove()
         if i == 0:
-            self.update_plot(update_static=True)
+            self.plot(update_static=True)
         else:
-            self.update_plot()
+            self.plot()
 
 
 def main():

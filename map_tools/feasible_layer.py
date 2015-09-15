@@ -78,15 +78,13 @@ class FeasibleLayer(Layer):
                 buffered_shape = element.shape.buffer(self.max_robot_radius)
                 self.pose_region = self.pose_region.difference(buffered_shape)
 
-    def plot(self, type_="pose", ax=None, alpha=0.5, **kwargs):
+    def plot(self, type_='pose', alpha=0.5, **kwargs):
         """Plot either the pose or point feasible regions.
 
         Parameters
         ----------
         type_ : {'pose','point'}
             The type of feasible region to plot.
-        ax : figure axis
-            The axis to plot the feasible regoin on.
         alpha : int
             Feasible region patch transparency
         **kwargs
@@ -97,15 +95,22 @@ class FeasibleLayer(Layer):
         else:
             p = self.point_region
 
-        if ax is None:
-            ax = plt.gca()
-
         ax.set_xlim([self.bounds[0], self.bounds[2]])
         ax.set_ylim([self.bounds[1], self.bounds[3]])
 
-        patch = PolygonPatch(p, facecolor=cnames['black'],
-                             alpha=alpha, zorder=2, **kwargs)
-        ax.add_patch(patch)
+        self.patch = PolygonPatch(p, facecolor=cnames['black'],
+                                  alpha=alpha, zorder=2, **kwargs)
+        ax.add_patch(self.patch)
+
         plt.show()
 
         # return patch
+
+    def remove(self):
+        """Removes feasible region patch from plot"""
+        if hasattr(self, 'patch'):
+            self.patch.remove()
+
+    def update(self, type_='pose', i=0):
+        self.remove()
+        self.plot(type_)

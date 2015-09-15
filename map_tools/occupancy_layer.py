@@ -32,10 +32,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from shapely.geometry import box, Point
 
-from cohrint_core.map_tools.layer import Layer
+# from cohrint_core.map_tools.layer import Layer
 
 
-class OccupancyLayer(Layer):
+class OccupancyLayer(object):
     """Generate an occupancy grid from static map objects.
 
     Gridded occupancy layer for the map, translating euclidean coordinates
@@ -48,13 +48,10 @@ class OccupancyLayer(Layer):
     cell_size : float, optional
         The side length for each square cell in the occupancy grid in [m].
         Defaults to 0.05.
-    **kwargs
-        Keyword arguments given to the ``Layer`` superclass.
 
     """
-    def __init__(self, feasible_layer, cell_size=1.0, **kwargs):
-        super(OccupancyLayer, self).__init__(**kwargs)
-
+    def __init__(self, feasible_layer, cell_size=1.0, bounds=[-5, -5, 5, 5]):
+        self.bounds = bounds
         self.feasible_layer = feasible_layer
         self.cell_size = cell_size
 
