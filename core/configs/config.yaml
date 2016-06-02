@@ -1,0 +1,27 @@
+# YAML
+
+robots:
+	Deckard:
+	   pose_source: python  # ['python' or a ros topic string like '/roy/odom']
+	   goal_planner_cfg:
+	     type_: simple  # ['stationary', 'simple', 'trajectory']
+	   path_planner_cfg:
+	     type_: 'a_star'  # ['direct', 'a_star'] 
+	Zhora:
+	   pose_source: python  # ['python' or a ros topic string like '/zhora/odom']
+	   goal_planner_cfg:
+	     type_: simple  # ['stationary', 'simple', 'trajectory']
+	   path_planner_cfg:
+	     type_: 'a_star'  # ['direct', 'a_star'] 
+	Roy:
+	   pose_source: python  # ['python' or a ros topic string like '/roy/odom']
+	   goal_planner_cfg:
+	     type_: simple  # ['stationary', 'simple', 'trajectory']
+	   path_planner_cfg:
+	     type_: 'a_star'  # ['direct', 'a_star'] 
+	Pris:
+	   pose_source: python  # ['python' or a ros topic string like '/zhora/odom']
+	   goal_planner_cfg:
+	     type_: simple  # ['stationary', 'simple', 'trajectory']
+	   path_planner_cfg:
+	     type_: 'a_star'  # ['direct', 'a_star'] 
