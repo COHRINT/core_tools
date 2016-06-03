@@ -2,8 +2,8 @@
 
 import logging
 
-from cops_and_robots.robo_tools.robot import Robot
-from cops_and_robots.robo_tools.planner import MissionPlanner
+from core.robo_tools.robot import Robot
+from core.robo_tools.planner import MissionPlanner
 
 class Vagabond(Robot):
     """The Vagabond subclass of the generic Robot type.
@@ -49,7 +49,7 @@ class Vagabond(Robot):
                                      **kwargs)
 
         self.found_vagabond = {}
-        self.mission_planner = RobberMissionPlanner(self, **mp_cfg)
+        self.mission_planner = VagabondMissionPlanner(self, **mp_cfg)
 
 
 class VagabondMissionPlanner(MissionPlanner):
