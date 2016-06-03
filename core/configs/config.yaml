@@ -1,6 +1,6 @@
 # YAML
 
-robots:
+vagabonds:
 	Deckard:
 	   pose_source: python  # ['python' or a ros topic string like '/roy/odom']
 	   goal_planner_cfg:
