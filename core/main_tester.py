@@ -48,18 +48,18 @@ class ReliableVagabond(object):
                                )
         np.set_printoptions(precision=self.cfg['main']['numpy_print_precision'],suppress=True)
         # Set up a ROS node (if using ROS)
-                if self.cfg['main']['use_ROS']:
-                    import rospy
-                    rospy.init_node(self.cfg['main']['ROS_node_name'], 
-                                    log_level=rospy.DEBUG)
+        if self.cfg['main']['use_ROS']:
+            import rospy
+            rospy.init_node(self.cfg['main']['ROS_node_name'], 
+                            log_level=rospy.DEBUG)
 
-                    # Link node to Python's logger
-                    handler = logging.StreamHandler()
-                    handler.setFormatter(logging.Formatter(logger_format))
-                    logging.getLogger().addHandler(handler)
+        # Link node to Python's logger
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter(logger_format))
+        logging.getLogger().addHandler(handler)
 
-                    # Create robots
-                    self.create_actors()
+        # Create robots
+        self.create_actors()
 
 
         # Describe the simulation
@@ -67,13 +67,13 @@ class ReliableVagabond(object):
 
         self.headless_mode()
 
-    #def __repr__ ??????????????????????
     #Start from here
 
     def headless_mode(self):
         """Runs the simulation without any animation output.
         """
         i = 0
+        # Works because Deckard is one of the robots in the config file
         while self.vagabond['Deckard'].mission_planner.mission_status != 'stopped':
             self.update(i)
             i += 1
@@ -84,37 +84,24 @@ class ReliableVagabond(object):
         logging.debug('Main update frame {}'.format(i))
 
         # Update all actors
-        for robot_name, vagabond in self.vagabond.iteritems():
+        for vagabond_name, vagabond in self.vagabond.iteritems():
             vagabond.update(i)
 
     def create_actors(self):
         # Create robbers with config params
-        other_robot_names = {'vagabonds': []}
+        other_vagabond_names = {'vagabonds': []}
         self.vagabonds = {}
         i = 0
-        for vagabond, kwargs in self.cfg['robots'].iteritems():
-            if i >= self.cfg['main']['number_of_agents']['robots']:
+        for vagabond, kwargs in self.cfg['vagabonds'].iteritems():
+            if i >= self.cfg['main']['number_of_agents']['vagabonds']:
                 break
-            self.vagabonds[robber] = Robber(robot, **kwargs)
+            self.vagabonds[vagabond] = Vagabond(robot, **kwargs)
             logging.info('{} added to simulation.'.format(robots))
             i += 1
-            other_robot_names['robbers'].append(robber)
+            other_vagabond_names['vagabonds'].append(vagabonds)
 
         # Use Deckard's map as the main map
-        self.map = self.cops['Deckard'].map
-
-        # <>TODO: Replace with message passing, potentially
-        # Give cops references to the robber's actual poses
-        for cop in self.cops.values():
-            for robber_name, robber in self.robbers.iteritems():
-                cop.missing_robbers[robber_name].pose2D = robber.pose2D
-            for distrator_name, distractor in self.distractors.iteritems():
-                cop.distracting_robots[distrator_name].pose2D = \
-                    distractor.pose2D
-
-        # Give robbers the list of found robots, so they will stop when found
-        for robber in self.robbers.values():
-            robber.found_robbers = self.cops['Deckard'].found_robbers
+        #self.map = self.vagabonds['Deckard'].map
 
 if __name__ == '__main__':
-    cnr = ReliableVagabond()
+    rv = ReliableVagabond()
