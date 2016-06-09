@@ -65,7 +65,7 @@ class VagabondMissionPlanner(MissionPlanner):
     def update(self):
         """Update the robot's status
         """
-        self.mission_status = 'on the run'
+        pass
         # Does not make sence anymore but still needs the update
         # if self.robot.name in self.robot.found_vagabond.keys():
         #     self.mission_status = 'on the run'

@@ -62,8 +62,8 @@ class Map(object):
     # TODO: @Config Change plot_robbers to just be a string
     # TODO: @Refactor Seperate map and interface
 
-    def __init__(self, map_name='fleming', bounds=[-5, -5, 5, 5],
-                 plot_robbers=True, map_display_type='particle',
+    def __init__(self, map_name='empty', bounds=[-4, -3.33, 4, 3.68],
+                 plot_robbers=False, map_display_type='particle',
                  combined_only=True, publish_to_ROS=False):
 
         # <>TODO: Move to main, fix hack

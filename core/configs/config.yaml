@@ -1,26 +1,37 @@
 # YAML
 
+main:
+  logging_level: INFO #['NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+  numpy_print_precision: 2
+  use_ROS: False  # True if any robot is in the real world
+  ROS_node_name: Python_Node
+  #max_run_time: 2000  # in number of frames, -1 for infinite
+  log_time: True  # display the current simulation frame and time
+  headless_mode: True
+  number_of_agents:
+  	vagabonds: 1 # Can be changed when more Robots should be added
+
 vagabonds:
 	Deckard:
-	   pose_source: python  # ['python' or a ros topic string like '/roy/odom']
+	   pose_source: tf  # ['python' or a ros topic string like '/roy/odom']
 	   goal_planner_cfg:
 	     type_: simple  # ['stationary', 'simple', 'trajectory']
 	   path_planner_cfg:
 	     type_: 'a_star'  # ['direct', 'a_star'] 
 	Zhora:
-	   pose_source: python  # ['python' or a ros topic string like '/zhora/odom']
+	   pose_source: tf  # ['python' or a ros topic string like '/zhora/odom']
 	   goal_planner_cfg:
 	     type_: simple  # ['stationary', 'simple', 'trajectory']
 	   path_planner_cfg:
 	     type_: 'a_star'  # ['direct', 'a_star'] 
 	Roy:
-	   pose_source: python  # ['python' or a ros topic string like '/roy/odom']
+	   pose_source: tf  # ['python' or a ros topic string like '/roy/odom']
 	   goal_planner_cfg:
 	     type_: simple  # ['stationary', 'simple', 'trajectory']
 	   path_planner_cfg:
 	     type_: 'a_star'  # ['direct', 'a_star'] 
 	Pris:
-	   pose_source: python  # ['python' or a ros topic string like '/zhora/odom']
+	   pose_source: tf  # ['python' or a ros topic string like '/zhora/odom']
 	   goal_planner_cfg:
 	     type_: simple  # ['stationary', 'simple', 'trajectory']
 	   path_planner_cfg:

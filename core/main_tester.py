@@ -61,10 +61,6 @@ class ReliableVagabond(object):
         # Create robots
         self.create_actors()
 
-
-        # Describe the simulation
-        logging.info(self)
-
         self.headless_mode()
 
     #Start from here
@@ -89,17 +85,7 @@ class ReliableVagabond(object):
 
     def create_actors(self):
         # Create robbers with config params
-        other_vagabond_names = {'vagabonds': []}
-        self.vagabonds = {}
-        i = 0
-        for vagabond, kwargs in self.cfg['vagabonds'].iteritems():
-            if i >= self.cfg['main']['number_of_agents']['vagabonds']:
-                break
-            self.vagabonds[vagabond] = Vagabond(robot, **kwargs)
-            logging.info('{} added to simulation.'.format(robots))
-            i += 1
-            other_vagabond_names['vagabonds'].append(vagabonds)
-
+        
         # Use Deckard's map as the main map
         #self.map = self.vagabonds['Deckard'].map
 
