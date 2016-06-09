@@ -84,6 +84,11 @@ class ReliableVagabond(object):
             vagabond.update(i)
 
     def create_actors(self):
+        self.vagabonds = {}
+
+        for vagabond in self.cfg['number of agents']['vagabonds']:
+            self.vagabonds[vagabond] = Vagabond(vagabond)
+
         # Create robbers with config params
         
         # Use Deckard's map as the main map
