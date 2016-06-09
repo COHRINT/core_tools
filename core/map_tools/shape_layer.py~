@@ -24,7 +24,7 @@ import copy
 
 from shapely.geometry import MultiPolygon, Polygon
 
-from core.map_tools.layer import Layer
+from cohrint_core.map_tools.layer import Layer
 
 
 class ShapeLayer(Layer):

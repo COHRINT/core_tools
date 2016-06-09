@@ -30,11 +30,11 @@ from core.fusion_tools.softmax import (speed_model,
                                                range_model,
                                                binary_range_model,
                                                camera_model_2D)
-from core.fusion_tools.gaussian_mixture import (GaussianMixture,
+from cohrint_core.fusion_tools.gaussian_mixture import (GaussianMixture,
                                                         fleming_prior,
                                                         uniform_prior
                                                         )
-from core.map_tools.map_elements import MapObject
+from cohrint_core.map_tools.map_elements import MapObject
 
 
 class VariationalBayes(object):

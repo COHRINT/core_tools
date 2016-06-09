@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import logging
+#import logging
 
 from core.robo_tools.robot import Robot
 from core.robo_tools.planner import MissionPlanner
@@ -50,6 +50,10 @@ class Vagabond(Robot):
 
         self.found_vagabond = {}
         self.mission_planner = VagabondMissionPlanner(self, **mp_cfg)
+
+    def update(self,i=0):
+
+        super(Vagabond,self).update(i)
 
 
 class VagabondMissionPlanner(MissionPlanner):

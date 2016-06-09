@@ -31,13 +31,13 @@ from shapely.geometry import Point, Polygon
 
 from abc import ABCMeta, abstractmethod
 
-from cohrint_core.robo_tools.pose import Pose
-from cohrint_core.robo_tools.planner import (MissionPlanner,
+from core.robo_tools.pose import Pose
+from core.robo_tools.planner import (MissionPlanner,
                                              GoalPlanner,
                                              PathPlanner,
                                              Controller)
-from cohrint_core.map_tools.map import Map
-from cohrint_core.map_tools.map_elements import MapObject
+from core.map_tools.map import Map
+from core.map_tools.map_elements import MapObject
 
 
 class Robot(object):

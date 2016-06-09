@@ -33,10 +33,10 @@ from shapely.geometry import Point, LineString
 
 from abc import ABCMeta, abstractmethod
 
-import cohrint_core.robo_tools.a_star as a_star
-from cohrint_core.map_tools.occupancy_layer import OccupancyLayer
-from cohrint_core.fusion_tools.gaussian_mixture import GaussianMixture
-from cohrint_core.fusion_tools.variational_bayes import VariationalBayes
+import core.robo_tools.a_star as a_star
+from core.map_tools.occupancy_layer import OccupancyLayer
+from core.fusion_tools.gaussian_mixture import GaussianMixture
+from core.fusion_tools.variational_bayes import VariationalBayes
 
 
 class MissionPlanner(object):

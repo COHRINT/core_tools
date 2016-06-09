@@ -70,7 +70,7 @@ class ReliableVagabond(object):
         """
         i = 0
         # Works because Deckard is one of the robots in the config file
-        while self.vagabond['Deckard'].mission_planner.mission_status != 'stopped':
+        while self.vagabonds['Deckard'].mission_planner.mission_status != 'stopped':
             self.update(i)
             i += 1
 
@@ -80,16 +80,19 @@ class ReliableVagabond(object):
         logging.debug('Main update frame {}'.format(i))
 
         # Update all actors
-        for vagabond_name, vagabond in self.vagabond.iteritems():
+        for vagabond_name, vagabond in self.vagabonds.iteritems():
             vagabond.update(i)
 
     def create_actors(self):
         self.vagabonds = {}
 
-        for vagabond in self.cfg['number of agents']['vagabonds']:
+        for vagabond in self.cfg['main']['number_of_agents']['vagabonds']:
             self.vagabonds[vagabond] = Vagabond(vagabond)
             logging.info('{} added to simulation'.format(vagabond))
+            #print(vagabond)
 
+
+        #print(self.vagabonds)
         # Create robbers with config params
         
         # Use Deckard's map as the main map

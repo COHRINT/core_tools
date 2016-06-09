@@ -29,12 +29,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from shapely.geometry import Point
 
-from core.helpers.config import load_config
-from core.map_tools.map_elements import MapObject, MapArea
-from core.map_tools.shape_layer import ShapeLayer
-from core.map_tools.feasible_layer import FeasibleLayer
-from core.map_tools.probability_layer import ProbabilityLayer
-from core.map_tools.particle_layer import ParticleLayer
+from cops_and_robots.helpers.config import load_config
+from cops_and_robots.map_tools.map_elements import MapObject, MapArea
+from cops_and_robots.map_tools.shape_layer import ShapeLayer
+from cops_and_robots.map_tools.feasible_layer import FeasibleLayer
+from cops_and_robots.map_tools.probability_layer import ProbabilityLayer
+from cops_and_robots.map_tools.particle_layer import ParticleLayer
 
 
 class Map(object):
