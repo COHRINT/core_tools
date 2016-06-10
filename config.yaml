@@ -3,7 +3,7 @@
 main:
   logging_level: INFO #['NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
   numpy_print_precision: 2
-  use_ROS: False  # True if any robot is in the real world
+  use_ROS: TRUE  # True if any robot is in the real world
   ROS_node_name: Python_Node
   #max_run_time: 2000  # in number of frames, -1 for infinite
   log_time: True  # display the current simulation frame and time

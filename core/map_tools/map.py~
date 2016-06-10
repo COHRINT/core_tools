@@ -29,12 +29,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from shapely.geometry import Point
 
-from cops_and_robots.helpers.config import load_config
-from cops_and_robots.map_tools.map_elements import MapObject, MapArea
-from cops_and_robots.map_tools.shape_layer import ShapeLayer
-from cops_and_robots.map_tools.feasible_layer import FeasibleLayer
-from cops_and_robots.map_tools.probability_layer import ProbabilityLayer
-from cops_and_robots.map_tools.particle_layer import ParticleLayer
+from core.helpers.config import load_config
+from core.map_tools.map_elements import MapObject, MapArea
+from core.map_tools.shape_layer import ShapeLayer
+from core.map_tools.feasible_layer import FeasibleLayer
+from core.map_tools.probability_layer import ProbabilityLayer
+from core.map_tools.particle_layer import ParticleLayer
 
 
 class Map(object):
@@ -61,7 +61,7 @@ class Map(object):
     # TODO: @Config Change plot_robbers to just be a string
     # TODO: @Refactor Seperate map and interface
 
-    def __init__(self, map_name='fleming', bounds=[-5, -5, 5, 5],
+    def __init__(self, map_name='empty', bounds=[-4, -4, 4, 4],
                  plot_robbers=True, map_display_type='probability',
                  combined_only=True, publish_to_ROS=False):
 
