@@ -60,7 +60,7 @@ class ReliableVagabond(object):
 
         # Create robots
         self.create_actors()
-
+        rospy.sleep(4)
         self.headless_mode()
 
     #Start from here
@@ -73,6 +73,8 @@ class ReliableVagabond(object):
         while self.vagabonds['Deckard'].mission_planner.mission_status != 'stopped':
             self.update(i)
             i += 1
+            time.sleep(0.2)
+
 
     def update(self, i):
         """Update all the major aspects of the simulation and record data.
@@ -81,18 +83,15 @@ class ReliableVagabond(object):
 
         # Update all actors
         for vagabond_name, vagabond in self.vagabonds.iteritems():
-            vagabond.update(i)
+        	vagabond.update(i)
 
     def create_actors(self):
         self.vagabonds = {}
 
-        for vagabond in self.cfg['main']['number_of_agents']['vagabonds']:
-            self.vagabonds[vagabond] = Vagabond(vagabond)
+        for vagabond, kwargs in self.cfg['vagabonds'].iteritems():
+            self.vagabonds[vagabond] = Vagabond(vagabond, **kwargs)
             logging.info('{} added to simulation'.format(vagabond))
-            #print(vagabond)
 
-
-        #print(self.vagabonds)
         # Create robbers with config params
         
         # Use Deckard's map as the main map

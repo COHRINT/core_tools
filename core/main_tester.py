@@ -86,8 +86,8 @@ class ReliableVagabond(object):
     def create_actors(self):
         self.vagabonds = {}
 
-        for vagabond in self.cfg['number of agents']['vagabonds']:
-            self.vagabonds[vagabond] = Vagabond(vagabond)
+        for vagabond, kwargs in self.cfg['vagabonds'].iteritems():
+            self.vagabonds[vagabond] = Vagabond(vagabond, **kwargs)
             logging.info('{} added to simulation'.format(vagabond))
 
         # Create robbers with config params

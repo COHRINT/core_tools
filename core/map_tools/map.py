@@ -69,7 +69,8 @@ class Map(object):
         # <>TODO: Clean this up- add seperate map creation function?
         self.map_name = map_name
         if self.map_name == 'fleming':
-            self.bounds = [-9.5, -3.33, 4, 3.68]
+            #self.bounds = [-9.5, -3.33, 4, 3.68]
+            self.bounds = [0, 0, 5, 5]
         else:
             self.bounds = bounds  # [x_min,y_min,x_max,y_max] in [m]
 
