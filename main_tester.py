@@ -73,7 +73,7 @@ class ReliableVagabond(object):
         while self.vagabonds['Deckard'].mission_planner.mission_status != 'stopped':
             self.update(i)
             i += 1
-            time.sleep(0.2)
+            # time.sleep(0.2)
 
 
     def update(self, i):
