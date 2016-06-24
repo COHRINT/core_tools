@@ -8,13 +8,6 @@ main:
   #max_run_time: 2000  # in number of frames, -1 for infinite
   log_time: True  # display the current simulation frame and time
   headless_mode: True
-  # number_of_agents:
-  #   vagabonds: ['Deckard','Zhora','Roy','Pris'] # Can be changed when more Robots should be added
-  #   # vagabonds: 
-  #   #   -{'Deckard'}
-  #   #   -'Zhora'
-  #   #   -'Roy'
-  #   #   -'Pris'
 
 vagabonds:
   Deckard:
