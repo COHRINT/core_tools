@@ -50,7 +50,7 @@ class ReliableVagabond(object):
         # Set up a ROS node (if using ROS)
         if self.cfg['main']['use_ROS']:
             import rospy
-            rospy.init_node(self.cfg['main']['ROS_node_name'], 
+            rospy.init_node(self.cfg['main']['ROS_node_name'],
                             log_level=rospy.DEBUG)
 
         # Link node to Python's logger
@@ -60,7 +60,7 @@ class ReliableVagabond(object):
 
         # Create robots
         self.create_actors()
-        rospy.sleep(4)
+        time.sleep(4)
         self.headless_mode()
 
     #Start from here
@@ -89,11 +89,12 @@ class ReliableVagabond(object):
         self.vagabonds = {}
 
         for vagabond, kwargs in self.cfg['vagabonds'].iteritems():
-            self.vagabonds[vagabond] = Vagabond(vagabond, **kwargs)
-            logging.info('{} added to simulation'.format(vagabond))
+            if self.cfg['vagabonds'][vagabond]['use']:
+                self.vagabonds[vagabond] = Vagabond(vagabond, **kwargs)
+                logging.info('{} added to simulation'.format(vagabond))
 
         # Create robbers with config params
-        
+
         # Use Deckard's map as the main map
         #self.map = self.vagabonds['Deckard'].map
 
