@@ -29,7 +29,7 @@ from shapely.geometry import box, Polygon, LineString
 from shapely.affinity import rotate
 from descartes.patch import PolygonPatch
 
-from core.fusion_tools.softmax import (binary_range_model,
+from cohrint_core.fusion_tools.softmax import (binary_range_model,
                                                binary_intrinsic_space_model,
                                                range_model,
                                                intrinsic_space_model)

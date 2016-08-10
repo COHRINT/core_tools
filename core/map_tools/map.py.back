@@ -35,6 +35,7 @@ from core.map_tools.shape_layer import ShapeLayer
 from core.map_tools.feasible_layer import FeasibleLayer
 from core.map_tools.probability_layer import ProbabilityLayer
 from core.map_tools.particle_layer import ParticleLayer
+from core.map_tools.human_interface import HumanInterface
 
 
 class Map(object):
@@ -61,28 +62,31 @@ class Map(object):
     # TODO: @Config Change plot_robbers to just be a string
     # TODO: @Refactor Seperate map and interface
 
-    def __init__(self, map_name='fleming', bounds=[-5, -5, 5, 5],
-                 plot_robbers=True, map_display_type='probability',
+    def __init__(self, map_name='empty', bounds=[-4, -3.33, 4, 3.68],
+                 plot_robbers=False, map_display_type='particle',
                  combined_only=True, publish_to_ROS=False):
 
+        # <>TODO: Move to main, fix hack
+        path = '/home/matt/catkin_ws/src/cops_and_robots_ros' + \
+               '/src/cops_and_robots/config_python.yaml'
+        self.human_cfg = load_config(path=path)['human_interface']
+
         # Define map properties
-        # <>TODO: Clean this up- add seperate map creation function?
         self.map_name = map_name
+        # <>TODO: Clean this up- add seperate map creation function?
         if self.map_name == 'fleming':
-            #self.bounds = [-9.5, -3.33, 4, 3.68]
-            self.bounds = [0, 0, 5, 5]
+            self.bounds = [-9.5, -3.33, 4, 3.68]
         else:
             self.bounds = bounds  # [x_min,y_min,x_max,y_max] in [m]
 
         self.plot_robbers = plot_robbers
         self.outer_bounds = [i * 1.1 for i in self.bounds]
         self.origin = [0, 0]  # in [m]
-
+        self.fig = plt.figure(1, figsize=(14, 10))
         # <>TODO: Make display type relative to each robber
         self.display_type = map_display_type
         self.combined_only = combined_only
 
-        # Set up ROS elements if using ROS
         self.publish_to_ROS = publish_to_ROS
         if publish_to_ROS:
             from cv_bridge import CvBridge
@@ -112,6 +116,7 @@ class Map(object):
         # Define layers
         self.shape_layer = ShapeLayer(self.element_dict, bounds=self.bounds)
         self.feasible_layer = FeasibleLayer(bounds=self.bounds)
+
         self.particle_layers = {}  # One per robber, plus one combined
         self.probability_layers = {}  # One per robber, plus one combined
 
@@ -120,6 +125,9 @@ class Map(object):
             set_up_fleming(self)  # <>TODO: make a generic 'setup map' function
         else:
             pass
+
+    def add_human_sensor(self, human_sensor):
+        self.human_sensor = human_sensor
 
     def add_obj(self, map_obj):
         self.objects[map_obj.name] = map_obj
@@ -218,45 +226,34 @@ class Map(object):
         for area in self.areas.values():
             ax.add_patch(area.get_patch())
 
-        ax.axis('scaled')
         ax.set_xlim([self.bounds[0], self.bounds[2]])
         ax.set_ylim([self.bounds[1], self.bounds[3]])
         ax.set_title('Experimental environment with landmarks and areas')
-        ax.annotate('Kitchen', [-5, 2.5], weight='bold')
-        ax.annotate('Billiard Room', [1.5, 2], weight='bold')
-        ax.annotate('Library', [0.75, -2.25], weight='bold')
-        ax.annotate('Study', [-4.5, -2.25], weight='bold')
-        ax.annotate('Dining Room', [-8.75, -1.4], weight='bold')
-        ax.annotate('Hallway', [-3.5, 0], weight='bold')
+        ax.annotate('Kitchen', [-5, 2.5])
+        ax.annotate('Billiard Room', [1.5, 2])
+        ax.annotate('Library', [0.75, -2.25])
+        ax.annotate('Study', [-4.5, -2.25])
+        ax.annotate('Dining Room', [-8.75, -1.4])
+        ax.annotate('Hallway', [-3.5, 0])
         plt.show()
 
-    def setup_plot(self, fig=None, fusion_engine=None):
+    def setup_plot(self, fusion_engine=None, show_human_interface=True):
         """Create the initial plot for the animation.
         """
         logging.info('Setting up plot')
-
-        if fig is None:
-            if plt.get_fignums():
-                self.fig = plt.gcf()
-            else:
-                self.fig = plt.figure(figsize=(14, 10))
-        else:
-            self.fig = fig
-
         self.fusion_engine = fusion_engine
         self._setup_axes()
         self._setup_layers()
 
+        # Set up the human interface
+        if self.human_sensor and show_human_interface:
+            HumanInterface(self.fig, self.human_sensor, **self.human_cfg)
+
     def _setup_axes(self):
         self.axes = {}
         if len(self.robbers) == 1:
-            name = self.robbers.iterkeys().next()
-            self.axes[name] = self.fig.add_subplot(111)
-            pos = self.axes[name].get_position()
-            print pos
-            pos = [pos.x0, pos.y0 * 1.2, pos.width, pos.height]
-            print pos
-            self.axes[name].set_position(pos)
+            print self.robbers
+            self.axes['Roy'] = self.fig.add_subplot(111)
         elif self.combined_only:
             self.axes['combined'] = self.fig.add_subplot(111)
         else:
@@ -289,16 +286,9 @@ class Map(object):
             ax.set_ylim([self.bounds[1], self.bounds[3]])
             ax.set_ylabel('y position (m)')
             if ax_name == 'combined':
-                t = ax.set_title('Combined perception of all robots')
+                ax.set_title('Combined perception of all robots')
             else:
-                t = ax.set_title("Map of {}'s perceived location"
-                                 .format(ax_name))
-
-            try:
-                if self.fusion_engine.vel_states is not None:
-                    t.set_y(1.2)
-            except AttributeError:
-                logging.debug('No vel states available.')
+                ax.set_title("Map of {}'s perceived location".format(ax_name))
         # plt.tight_layout()
 
     def _setup_layers(self):
@@ -313,10 +303,13 @@ class Map(object):
             # Set up probability/particle layers
             if self.fusion_engine is not None:
                 filter_ = self.fusion_engine.filters[ax_name]
-
-                self.probability_layers[ax_name] = \
-                    ProbabilityLayer(filter_, fig=self.fig, ax=ax, 
-                                     bounds=self.bounds)
+                if self.display_type == 'particle':
+                    self.particle_layers[ax_name] = ParticleLayer(filter_,
+                                                                  ax=ax)
+                elif self.display_type == 'probability':
+                    self.probability_layers[ax_name] = \
+                        ProbabilityLayer(filter_, fig=self.fig, ax=ax,
+                                         bounds=self.bounds)
 
     def change_published_ax(self, msg):
         self.probability_target = msg.data
@@ -350,7 +343,6 @@ class Map(object):
                         self.bridge.cv2_to_imgmsg(img, "bgr8"))
                 except CvBridgeError, e:
                     print e
-
 
 
 def set_up_fleming(map_):
@@ -451,22 +443,13 @@ def set_up_fleming(map_):
               'Dining Room']
     colors = ['aquamarine', 'lightcoral', 'goldenrod', 'sage',
               'cornflowerblue', 'orchid']
-    # points = np.array([[[-7.0, -3.33], [-7.0, -1], [-2, -1], [-2, -3.33]],
-    #                    [[-2, -3.33], [-2, -1], [4.0, -1], [4.0, -3.33]],
-    #                    [[-9.5, 1.4], [-9.5, 3.68], [0, 3.68], [0, 1.4]],
-    #                    [[0, 1.4], [0, 3.68], [4, 3.68], [4, 1.4]],
-    #                    [[-9.5, -1], [-9.5, 1.4], [4, 1.4], [4, -1]],
-    #                    [[-9.5, -3.33], [-9.5, -1], [-7, -1], [-7, -3.33]],
-    #                    ])
-    s = 0.0  # coarse scale factor 
-    points = np.array([[[-7.0 - s, -3.33], [-7.0 - s, -1 + s], [-2 + s, -1 + s], [-2 + s, -3.33]],
-                       [[-2 - s, -3.33], [-2 - s, -1 + s], [4.0, -1 + s], [4.0, -3.33]],
-                       [[-9.5, 1.4 - s], [-9.5, 3.68], [0 + s, 3.68], [0 + s, 1.4 - s]],
-                       [[0 - s, 1.4 - s], [0 - s, 3.68], [4, 3.68], [4, 1.4 - s]],
-                       [[-9.5, -1 - s], [-9.5, 1.4 + s], [4, 1.4 + s], [4, -1 - s]],
-                       [[-9.5, -3.33], [-9.5, -1 + s], [-7 + s, -1 + s], [-7 + s, -3.33]],
+    points = np.array([[[-7.0, -3.33], [-7.0, -1], [-2, -1], [-2, -3.33]],
+                       [[-2, -3.33], [-2, -1], [4.0, -1], [4.0, -3.33]],
+                       [[-9.5, 1.4], [-9.5, 3.68], [0, 3.68], [0, 1.4]],
+                       [[0, 1.4], [0, 3.68], [4, 3.68], [4, 1.4]],
+                       [[-9.5, -1], [-9.5, 1.4], [4, 1.4], [4, -1]],
+                       [[-9.5, -3.33], [-9.5, -1], [-7, -1], [-7, -3.33]],
                        ])
-
 
     for i, pts in enumerate(points):
         centroid = [pts[0, 0] + np.abs(pts[2, 0] - pts[0, 0]) / 2,
@@ -477,7 +460,7 @@ def set_up_fleming(map_):
 
         # Relate landmarks and areas
         for landmark in landmarks:
-            if area.shape.intersects(Point(landmark.pose)):
+            if area.shape.contains(Point(landmark.pose)):
                 area.contained_objects[landmark.name] = landmark
                 landmark.container_area = area
                 landmark.define_relations(map_.bounds)
@@ -485,30 +468,6 @@ def set_up_fleming(map_):
 
     # <>TODO: Include area demarcations
     map_.feasible_layer.define_feasible_regions(map_.static_elements)
-
-def find_grid_mask_for_rooms(map_, grid):
-    """Define boolean arrays of which grid cells each area contains.
-    """
-    area_masks = {}
-    pos = grid.pos
-    for area_name, area in map_.areas.iteritems():
-        area_mask = np.ones_like(grid.prob.flatten())
-
-        for i, pt in enumerate(pos):
-            if not area.shape.intersects(Point(pt)):
-                area_mask[i] = 0
-        area_masks[area_name] = area_mask
-
-    return area_masks
-
-    # # STUB TO GENERATE AREA MASKS - ADD TO main.py
-    # from cops_and_robots.map_tools.map import find_grid_mask_for_rooms
-    # map_ = self.cops['Deckard'].map
-    # grid = fusion_engine.filters['Roy'].probability
-    # area_masks = find_grid_mask_for_rooms(map_, grid)
-    # np.save('coarse_area_masks', area_masks)
-    # self.cops['Deckard'].map.plot()
-    # return
 
 
 if __name__ == '__main__':

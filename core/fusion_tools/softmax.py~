@@ -25,7 +25,7 @@ from matplotlib.colors import ColorConverter
 from mpl_toolkits.mplot3d import Axes3D  # Seemingly unused, but for 3D plots
 from descartes.patch import PolygonPatch
 
-from core.helpers.visualizations import plot_multisurface
+from cohrint_core.helpers.visualizations import plot_multisurface
 
 import warnings  # To suppress nolabel warnings
 warnings.filterwarnings("ignore", message=".*cannot be automatically added.*")

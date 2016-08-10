@@ -25,7 +25,7 @@ import matplotlib.animation as animation
 
 import itertools
 
-from core.map_tools.layer import Layer
+from cohrint_core.map_tools.layer import Layer
 
 # <>TODO: Join in as probability layer sub class
 

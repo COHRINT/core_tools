@@ -33,10 +33,10 @@ from shapely.geometry import Point, LineString
 
 from abc import ABCMeta, abstractmethod
 
-import cohrint_core.robo_tools.a_star as a_star
-from cohrint_core.map_tools.occupancy_layer import OccupancyLayer
-from cohrint_core.fusion_tools.gaussian_mixture import GaussianMixture
-from cohrint_core.fusion_tools.variational_bayes import VariationalBayes
+import core.robo_tools.a_star as a_star
+from core.map_tools.occupancy_layer import OccupancyLayer
+from core.fusion_tools.gaussian_mixture import GaussianMixture
+from core.fusion_tools.variational_bayes import VariationalBayes
 
 
 class MissionPlanner(object):
@@ -151,9 +151,11 @@ class GoalPlanner(object):
         self.use_target_as_goal = use_target_as_goal
         self.stuck_distance = 0.1  # [m] distance traveled before assumed stuck
         if self.robot.publish_to_ROS:
-            self.stuck_buffer = 75  # time steps after being stuck before checking
+            # self.stuck_buffer = 75  # time steps after being stuck before checking
+            self.stuck_buffer = 400
         else:
-            self.stuck_buffer = 50
+            # self.stuck_buffer = 50
+            self.stuck_buffer = 300
         self.stuck_count = self.stuck_buffer
         self.distance_allowance = 0.15  # [m] acceptable distance to a goal
         self.rotation_allowance = 0.5  # [deg] acceptable rotation to a goal

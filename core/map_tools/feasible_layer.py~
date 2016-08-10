@@ -24,8 +24,8 @@ import logging
 
 from shapely.geometry import box
 
-from core.map_tools.layer import Layer
-from core.map_tools.map_elements import MapObject
+from cohrint_core.map_tools.layer import Layer
+from cohrint_core.map_tools.map_elements import MapObject
 from descartes.patch import PolygonPatch
 import matplotlib.pyplot as plt
 from matplotlib.colors import cnames
