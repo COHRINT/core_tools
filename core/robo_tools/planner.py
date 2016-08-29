@@ -118,7 +118,8 @@ class GoalPlanner(object):
         the goal.
 
     """
-    types = ['stationary', 'simple', 'trajectory', 'particle', 'MAP']
+    __metaclass__ = ABCMeta
+    types = ['stationary', 'simple', 'trajectory', 'particle', 'MAP', 'pomdp']
     goal_statuses = ['stuck',
                      'at goal',
                      'moving to goal',
@@ -160,6 +161,7 @@ class GoalPlanner(object):
         self.distance_allowance = 0.15  # [m] acceptable distance to a goal
         self.rotation_allowance = 0.5  # [deg] acceptable rotation to a goal
 
+    @abstractmethod
     def find_goal_pose(self):
         """Find a goal pose, agnostic of planner type.
 
@@ -171,284 +173,8 @@ class GoalPlanner(object):
             A pose as [x,y,theta] in [m,m,degrees].
 
         """
-        if self.type == 'stationary':
-            target_pose = None
-        elif self.type == 'simple':
-            target_pose = self.find_goal_simply()
-        elif self.type == 'trajectory':
-            target_pose = self.find_goal_from_trajectory()
-        elif self.type == 'particle':
-            target_pose = self.find_goal_from_particles()
-        elif self.type == 'MAP':
-            target_pose = self.find_goal_from_probability()
 
-        if target_pose is None:
-            return target_pose
-
-        if self.use_target_as_goal:
-            goal_pose = target_pose
-            logging.info("New goal: {}".format(["{:.2f}".format(a) for a in
-                                                goal_pose]))
-        else:
-            goal_pose = self.view_goal(target_pose)
-            logging.info("New view goal ({}): {} to see {}"
-                         .format(self.type,
-                                 ["{:.2f}".format(a) for a in goal_pose],
-                                 ["{:.2f}".format(a) for a in target_pose]))
-        return goal_pose
-
-    def view_goal(self, target_pose):
-        """Generate a goal as a view pose from which to see the target.
-
-        Translate a target's position to a feasible goal pose for the robot,
-        such that the robot can easily see the target. It is not expected
-        that the target's heading matters (i.e. the view pose need only
-        capture the target, not the target from any side).
-
-        Parameters
-        ----------
-        target_pose : array_like
-            The target pose as [x,y,theta] in [m,m,degrees].
-
-        Returns
-        -------
-        array_like
-            A pose as [x,y,theta] in [m,m,degrees].
-
-        """
-        # <>TODO: Extend this to deterministically view the target's face(s)
-
-        # Define a circle as view_distance from the target_pose
-        view_circle = Point(target_pose[0:2])\
-            .buffer(self.view_distance).exterior
-
-        # Find any feasible point on the view_circle
-        feasible_arc = self.feasible_layer\
-            .pose_region.intersection(view_circle)
-        pt = feasible_arc.representative_point()
-        theta = math.atan2(target_pose[1] - pt.y,
-                           target_pose[0] - pt.x)  # [rad]
-        theta = math.degrees(theta) % 360
-        goal_pose = pt.x, pt.y, theta
-
-        return goal_pose
-
-    def find_goal_simply(self):
-        """Find a random goal pose on the map.
-
-        Find a random goal pose within map boundaries, residing in the
-        feasible pose regions associated with the map.
-
-        Returns
-        -------
-        array_like
-            A pose as [x,y,theta] in [m,m,degrees].
-
-        """
-        theta = random.uniform(0, 360)
-
-        feasible_point_generated = False
-        bounds = self.feasible_layer.bounds
-        while not feasible_point_generated:
-            x = random.uniform(bounds[0], bounds[2])
-            y = random.uniform(bounds[1], bounds[3])
-            goal_pt = Point(x, y)
-            if self.feasible_layer.pose_region.contains(goal_pt):
-                feasible_point_generated = True
-
-        goal_pose = [x, y, theta]
-        return goal_pose
-
-    def find_goal_from_particles(self):
-        """Find a goal from the most likely particle(s).
-
-        Find a goal pose taken from the particle with the greatest associated
-        probability. If multiple particles share the maximum probability, the
-        goal pose will be randomly selected from those particles.
-
-        Parameters
-        ----------
-        fusion_engine : FusionEngine
-            A fusion engine with a particle filter.
-
-        Returns
-        -------
-        array_like
-            A pose as [x,y,theta] in [m,m,degrees].
-
-        """
-        target = self.robot.mission_planner.target
-        fusion_engine = self.robot.fusion_engine
-        # <>TODO: @Nick Test this!
-        if fusion_engine.filter_type != 'particle':
-                raise ValueError('The fusion_engine must have a '
-                                 'particle_filter.')
-
-        theta = random.uniform(0, 360)
-
-        # If no target is specified, do default behavior
-        if target is None:
-            if len(fusion_engine.filters) > 1:
-                particles = fusion_engine.filters['combined'].particles
-            else:
-                particles = next(fusion_engine.filters.iteritems()).particles
-        else:
-            try:
-                particles = fusion_engine.filters[target].particles
-                logging.info('Looking for {}'.format(target))
-            except:
-                logging.warn('No particle filter found for specified target')
-                return None
-
-        max_prob = particles[:, 0].max()
-        max_particle_i = np.where(particles[:, 0] == max_prob)[0]
-        max_particles = particles[max_particle_i, :]
-
-        # Select randomly from max_particles
-        max_particle = random.choice(max_particles)
-        goal_pose = np.append(max_particle[1:3], theta)
-
-        return goal_pose
-
-    def find_goal_from_probability(self):
-        """Find a goal pose from the point of highest probability (the
-            Maximum A Posteriori, or MAP, point).
-
-        Parameters
-        ----------
-        fusion_engine : FusionEngine
-            A fusion engine with a probabilistic filter.
-
-        Returns
-        -------
-        array_like
-            A pose as [x,y,theta] in [m,m,degrees].
-
-        """
-        target = self.robot.mission_planner.target
-        fusion_engine = self.robot.fusion_engine
-
-        # <>TODO: @Nick Test this!
-        if fusion_engine.filter_type != 'gauss sum':
-                raise ValueError('The fusion_engine must have a '
-                                 'gauss sum filter.')
-
-        theta = random.uniform(0, 360)
-
-        # If no target is specified, do default behavior
-        if target is None:
-            if len(fusion_engine.filters) > 1:
-                posterior = fusion_engine.filters['combined'].probability
-            else:
-                posterior = next(fusion_engine.filters.iteritems()).probability
-        else:
-            try:
-                posterior = fusion_engine.filters[target].probability
-                logging.info('Looking for {}'.format(target))
-            except:
-                logging.warn('No gauss sum filter found for specified target')
-                return None
-
-        bounds = self.feasible_layer.bounds
-        MAP_point, MAP_prob = posterior.max_point_by_grid(bounds)
-
-        # Select randomly from max_particles
-        goal_pose = np.append(MAP_point, theta)
-
-        # Check if its a feasible goal
-        pt = Point(goal_pose[0:2])
-        if self.feasible_layer.pose_region.contains(pt):
-            # If feasible return goal
-            return goal_pose
-        else:
-            # Check if it inside an object, update probability
-            map_ = self.robot.map
-            for name, obj in map_.objects.iteritems():
-                if obj.shape.contains(pt):
-                    self.clear_probability_from_objects(target, obj)
-                    goal_pose = None
-                    return goal_pose
-            else:
-                # If not in feasible region but not in object, and not
-                # using a view goal, generate a point in the same way
-                # as a view goal
-                logging.info('Not feasible, not in object')
-                if self.use_target_as_goal:
-                    goal_pose = self.view_goal(goal_pose)
-
-        return goal_pose
-
-    def clear_probability_from_objects(self, target, obj):
-        logging.info('Clearing probability from {}'.format(obj.name))
-        fusion_engine = self.robot.fusion_engine
-        vb = VariationalBayes()
-
-        if not hasattr(obj, 'relations'):
-            obj.define_relations()
-
-        if target is not None:
-            prior = fusion_engine.filters[target].probability
-            likelihood = obj.relations.binary_models['Inside']
-            mu, sigma, beta = vb.update(measurement='Not Inside',
-                                        likelihood=likelihood,
-                                        prior=prior,
-                                        use_LWIS=False,
-                                        )
-            gm = GaussianMixture(beta, mu, sigma)
-            fusion_engine.filters[target].probability = gm
-        else:
-            # Update all but combined filters
-            for name, filter_ in fusion_engine.filters.iteritems():
-                if name == 'combined':
-                    pass
-                else:
-                    prior = filter_.probability
-                    likelihood = obj.relations.binary_models['Inside']
-                    mu, sigma, beta = vb.update(measurement='Not Inside',
-                                                likelihood=likelihood,
-                                                prior=prior,
-                                                use_LWIS=False,
-                                                )
-                    gm = GaussianMixture(beta, mu, sigma)
-                    filter_.probability = gm
-
-    def find_goal_from_trajectory(self):
-        """Find a goal pose from a set trajectory, defined by the
-            mission_planner.
-            Trajectory must be a iterated numpy array
-
-        Parameters
-        ----------
-        Returns
-        -------
-        array_like
-            A pose as [x,y,theta] in [m,m,degrees].
-
-        """
-        trajectory = self.robot.mission_planner.trajectory
-        try:
-            next_goal = next(trajectory)
-        except NameError:
-            logging.warn('Trajectory not found')
-            return None
-        except StopIteration:
-            logging.info('The specified trajectory has ended')
-            return None
-        except:
-            logging.warn('Unknown Error in loading trajectory')
-            return None
-
-        if next_goal.size == 2:
-            # if theta is not specified, don't rotate
-            current_pose = self.robot.pose2D.pose[0:2]
-            theta = math.atan2(next_goal[1] - current_pose[1],
-                               next_goal[0] - current_pose[0])  # [rad]
-            theta = math.degrees(theta) % 360
-            goal_pose = np.append(next_goal, theta)
-        else:
-            goal_pose = next_goal
-
-        return goal_pose
+        return
 
     def is_stuck(self):
         """Check if the robot has not moved significantly.
@@ -529,6 +255,7 @@ class GoalPlanner(object):
             self.move_base_goal.header.stamp = rospy.Time.now()
             self.pub.publish(self.move_base_goal)
 
+    @abstractmethod
     def update(self):
         """Checks to see if goal has been reached, assigns new goals,
             and updates goal status

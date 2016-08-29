@@ -102,8 +102,24 @@ class Robot(object):
         # Setup planners
         if create_mission_planner:
             self.mission_planner = MissionPlanner(self)
-        self.goal_planner = GoalPlanner(self,
-                                        **goal_planner_cfg)
+
+        goal_planner_type = goal_planner_cfg['type_']
+
+        #if self.type == 'stationary':
+        #    target_pose = None
+        if goal_planner_type == 'simple':
+            from simple_planner import SimpleGoalPlanner
+            self.goal_planner = SimpleGoalPlanner(self,**goal_planner_cfg)
+
+        # elif self.goal_planner_type == 'trajectory':
+        #     self.goal_planner
+        # elif self.type == 'particle':
+        #     target_pose = self.find_goal_from_particles()
+        # elif self.type == 'MAP':
+        #     target_pose = self.find_goal_from_probability()
+        #
+        # self.goal_planner = GoalPlanner(self,
+        #                                 **goal_planner_cfg)
         # If pose_source is python, this robot is just in simulation
         if not self.publish_to_ROS:
             self.path_planner = PathPlanner(self, **path_planner_cfg)
