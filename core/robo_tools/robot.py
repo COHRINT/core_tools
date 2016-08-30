@@ -105,11 +105,28 @@ class Robot(object):
 
         goal_planner_type = goal_planner_cfg['type_']
 
-        #if self.type == 'stationary':
-        #    target_pose = None
-        if goal_planner_type == 'simple':
+        if goal_planner_type == 'stationary':
+           target_pose = None
+
+        elif goal_planner_type == 'simple':
             from simple_planner import SimpleGoalPlanner
             self.goal_planner = SimpleGoalPlanner(self,**goal_planner_cfg)
+
+        elif goal_planner_type == 'trajectory':
+            from trajectory_planner import TrajectoryGoalPlanner
+            self.goal_planner = TrajectoryGoalPlanner(self,**goal_planner_cfg)
+
+        elif goal_planner_type == 'particle':
+            from particle_planner import ParticleGoalPlanner
+            self.goal_planner = ParticleGoalPlanner(self,**goal_planner_cfg)
+
+        elif goal_planner_type == 'MAP':
+            from probability_planner import PorbabilityGoalPlanner
+            self.goal_planner = ProbabilityGoalPlanner(self,**goal_planner_cfg)
+
+        elif goal_planner_type == 'pomdp':
+            from pomdp_planner import PomdpGoalPlanner
+            self.goal_planner = PomdpGoalPlanner(self,**goal_planner_cfg)
 
         # elif self.goal_planner_type == 'trajectory':
         #     self.goal_planner
