@@ -70,7 +70,7 @@ class ReliableVagabond(object):
         """
         i = 0
         # Works because Deckard is one of the robots in the config file
-        while self.vagabonds['Roy'].mission_planner.mission_status != 'stopped':
+        while self.vagabonds['Deckard'].mission_planner.mission_status != 'stopped':
             self.update(i)
             i += 1
             # time.sleep(0.2)

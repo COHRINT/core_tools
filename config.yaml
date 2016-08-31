@@ -3,25 +3,25 @@
 main:
   logging_level: INFO #['NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
   numpy_print_precision: 2
-  use_ROS: False  # True if any robot is in the real world
+  use_ROS: True  # True if any robot is in the real world
   pose_source: &pose_source tf  # ['python' or a ros topic string like '/roy/odom' or 'tf']
   ROS_node_name: Python_Node
   #max_run_time: 2000  # in number of frames, -1 for infinite
   log_time: True  # display the current simulation frame and time
-  headless_mode: True
+  headless_mode: True # run with or without animation output ['True']
 
-robots_to_use:
+robots_to_use: # ['True', 'False']
   Deckard: &use_deckard True
-  Zhora: &use_zhora True
+  Zhora: &use_zhora False
   Roy: &use_roy False
-  Pris: &use_pris True
+  Pris: &use_pris False
 
 vagabonds:
   Deckard:
      use: *use_deckard
      pose_source: *pose_source  # ['python' or a ros topic string like '/roy/odom']
      goal_planner_cfg:
-       type_: simple  # ['stationary', 'simple', 'trajectory']
+       type_: pomdp  # ['stationary', 'simple', 'trajectory']
   Zhora:
      use: *use_zhora
      pose_source: *pose_source  # ['python' or a ros topic string like '/zhora/odom']
@@ -31,7 +31,7 @@ vagabonds:
      use: *use_roy
      pose_source: *pose_source  # ['python' or a ros topic string like '/roy/odom']
      goal_planner_cfg:
-       type_: simple  # ['stationary', 'simple', 'trajectory']
+       type_: pomdp  # ['stationary', 'simple', 'trajectory']
   Pris:
      use: *use_pris
      pose_source: *pose_source  # ['python' or a ros topic string like '/zhora/odom']
