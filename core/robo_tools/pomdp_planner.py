@@ -21,6 +21,7 @@ class PomdpGoalPlanner(GoalPlanner):
 												goal_pose_topic=goal_pose_topic)
 
 		self.policy_translator = testPolicyTranslator() #policy translator object
+		self.goal_pose_exsistence = False #terrible shitty hack fuck this is bad
 
 	def find_goal_pose(self):
 		"""Find goal pose from POMDP policy
@@ -36,6 +37,10 @@ class PomdpGoalPlanner(GoalPlanner):
 
 		goal_pose = self.policy_translator.getNextPose(current_position)
 
+		if (math.atan( (goal_pose[1]-current_position[1]) / (goal_pose[0]-current_position[0]) ) \
+				- current_position[2]) > 120 and self.goal_pose_exsistence: #another reminder how fucking bad this is
+			super(PomdpGoalPlanner, self).rotation_assist()
+		self.goal_pose_exsistence = True
 		return goal_pose
 
 	def update(self):

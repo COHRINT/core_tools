@@ -69,12 +69,18 @@ class ReliableVagabond(object):
         """Runs the simulation without any animation output.
         """
         i = 0
-        # Works because Deckard is one of the robots in the config file
-        while self.vagabonds['Deckard'].mission_planner.mission_status != 'stopped':
+        max_run_time = self.cfg['main']['max_run_time']
+
+        while i < max_run_time:
             self.update(i)
             i += 1
-            # time.sleep(0.2)
 
+        logging.warn('Experiment has reached the max run time of {} frames! \
+                        \nExperiment ending...'.format(i))
+        # while self.vagabonds['Deckard'].mission_planner.mission_status != 'stopped':
+        #     self.update(i)
+        #     i += 1
+            # time.sleep(0.2)
 
     def update(self, i):
         """Update all the major aspects of the simulation and record data.

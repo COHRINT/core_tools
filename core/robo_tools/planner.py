@@ -26,6 +26,7 @@ __status__ = "Development"
 import logging
 import math
 import random
+import time
 from itertools import chain
 
 import numpy as np
@@ -175,6 +176,18 @@ class GoalPlanner(object):
         """
 
         return
+
+    def rotation_assist(self):
+        """sends goal with current position but better orientation to enable
+        robot to make 180 degree turns.
+        """
+        goal_point_ = [self.robot.pose2D._pose[0],
+                        self.robot.pose2D._pose[1],0.0,
+                        self.robot.pose2D._pose[2]+90]
+
+        self.goal_point = goal_point_
+        self.create_ROS_goal_message()
+        time.sleep(2)
 
     def is_stuck(self):
         """Check if the robot has not moved significantly.
