@@ -14,7 +14,7 @@ robots_to_use: # ['True', 'False']
   Deckard: &use_deckard True
   Zhora: &use_zhora False
   Roy: &use_roy False
-  Pris: &use_pris False
+  Pris: &use_pris True
 
 vagabonds:
   Deckard:
