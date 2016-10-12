@@ -120,7 +120,7 @@ class GoalPlanner(object):
 
     """
     __metaclass__ = ABCMeta
-    types = ['stationary', 'simple', 'trajectory', 'particle', 'MAP', 'pomdp']
+    types = ['stationary', 'simple', 'trajectory', 'particle', 'MAP', 'pomdp','secondary_test']
     goal_statuses = ['stuck',
                      'at goal',
                      'moving to goal',
@@ -251,6 +251,60 @@ class GoalPlanner(object):
                                                 orientation_bool)))
         return position_bool and orientation_bool
 
+    def feasible_pose(self,goal_pose,resolution,robot_diameter,map_width,
+                        map_height,occupancy_grid,map_resolution):
+        """Check if goal pose is feasible
+        """
+        print 'map width: %i'%map_width
+        print 'map height: %i'%map_height
+
+        occupancy_threshold = 0.6
+        resolution = map_resolution
+        robot_diameter = robot_diameter
+        grid_area_dim = int(math.ceil(((robot_diameter/2) / resolution))) + 1 #1/2 of side of square
+
+        goal_pose_cells = [int(goal_pose[0]/resolution),
+                            int(goal_pose[1]/resolution)]
+
+        if goal_pose_cells[0] > map_width or goal_pose_cells[1] > map_height:
+            print 'x_pos: %f'%x_cell
+            print 'y_pos: %f'%y_cell
+            logging.warn("Pose is not feasible. Finding new pose...")
+            return False
+
+        if goal_pose_cells[0] - grid_area_dim > 0:
+            x_range_min = goal_pose_cells[0] - grid_area_dim
+        else:
+            x_range_min = 0
+        if goal_pose_cells[1] - grid_area_dim > 0:
+            y_range_min = goal_pose_cells[1] - grid_area_dim
+        else:
+            y_range_min = 0
+        if goal_pose_cells[0] + grid_area_dim < map_width:
+            x_range_max = goal_pose_cells[0] + grid_area_dim
+        else:
+            x_range_max = map_width-1
+        if goal_pose_cells[1] + grid_area_dim < map_height:
+            y_range_max = goal_pose_cells[1] + grid_area_dim
+        else:
+            y_range_max = map_height-1
+
+        print(x_range_min,x_range_max)
+        print(y_range_min,y_range_max)
+
+        for x_cell in range(x_range_min,x_range_max):
+            for y_cell in range(y_range_min,y_range_max):
+                k = map_width * (y_cell) + (x_cell)
+                #print 'K: %i'%k
+                #print(occupancy_grid[k])
+                if occupancy_grid[k] > occupancy_threshold:
+                    print 'x_pos: %f'%x_cell
+                    print 'y_pos: %f'%y_cell
+                    logging.warn("Pose is not feasible. Finding new pose...")
+                    return False
+
+        return True
+
     def create_ROS_goal_message(self):
             import tf
             import rospy
@@ -288,6 +342,14 @@ class GoalPlanner(object):
                 new_status = 'done'
             else:
                 self.goal_pose = self.find_goal_pose()
+                if not self.feasible_pose(self.goal_pose,
+                                            self.robot.map_resolution,
+                                            self.robot.diameter,
+                                            self.robot.map_width,
+                                            self.robot.map_height,
+                                            self.robot.occupancy_grid,
+                                            self.robot.map_resolution):
+                    self.goal_pose = None
                 if self.goal_pose is None:
                     new_status = 'without a goal'
                 else:
@@ -306,11 +368,19 @@ class GoalPlanner(object):
                 new_status = 'at goal'
 
         elif current_status == 'stuck':
-            prev_type = self.type
-            self.type = 'simple'
+            #prev_type = self.type
+            #self.type = 'simple'
             self.goal_pose = self.find_goal_pose()
-            self.type = prev_type
-            if self.robot.publish_to_ROS is True:
+            if not self.feasible_pose(self.goal_pose,
+                                        self.robot.map_resolution,
+                                        self.robot.diameter,
+                                        self.robot.map_width,
+                                        self.robot.map_height,
+                                        self.robot.occupancy_grid,
+                                        self.robot.map_resolution):
+                self.goal_pose = None
+            #self.type = prev_type
+            elif self.robot.publish_to_ROS is True:
                 self.create_ROS_goal_message()
             else:
                 self.robot.path_planner.path_planner_status = 'planning'

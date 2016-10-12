@@ -99,6 +99,29 @@ class Robot(object):
         else:
             self.publish_to_ROS = True
 
+        # IF ROS publishing, subscribe to occupancy grid topic
+        # if self.publish_to_ROS:
+        #     import rospy
+        #     from nav_msgs.msg import OccupancyGrid, MapMetaData
+        #     rospy.Subscriber(self.name + '/map/',OccupancyGrid,self.map_server_info_update)
+        #     rospy.sleep(10)
+        #     logging.info("{} received new occupancy grid".format(self.name))
+        #     self.occupancy_threshold = 50
+        if self.publish_to_ROS:
+            import rospy
+            import nav_msgs.msg
+            from nav_msgs.msg import OccupancyGrid, MapMetaData
+            from nav_msgs.srv import GetMap
+            rospy.wait_for_service('/' + self.name.lower() + '/static_map')
+            try:
+                get_map = rospy.ServiceProxy('/' + self.name.lower() + '/static_map',GetMap)
+                map_msg = get_map()
+                logging.info("Received new map")
+            except rospy.ServiceException, e:
+                print "Service call for map failed: %s"%e
+
+            self.map_server_info_update(map_msg)
+
         # Setup planners
         if create_mission_planner:
             self.mission_planner = MissionPlanner(self)
@@ -128,6 +151,10 @@ class Robot(object):
             from pomdp_planner import PomdpGoalPlanner
             self.goal_planner = PomdpGoalPlanner(self,**goal_planner_cfg)
 
+        elif goal_planner_type == 'secondary_test':
+            from secondary_goals_test import SecondaryTest
+            self.goal_planner = SecondaryTest(self,**goal_planner_cfg)    
+
         # elif self.goal_planner_type == 'trajectory':
         #     self.goal_planner
         # elif self.type == 'particle':
@@ -145,6 +172,7 @@ class Robot(object):
         # Define MapObject
         # <>TODO: fix this horrible hack
         create_diameter = 0.34
+        self.diameter = create_diameter
         if self.name == 'Deckard':
             pose = [0, 0, -np.pi / 4]
             r = create_diameter / 2
@@ -160,7 +188,17 @@ class Robot(object):
                 .exterior.coords
         self.map_obj = MapObject(self.name, shape_pts[:], has_relations=False,
                                  blocks_camera=False, color_str=color_str)
+
         self.update_shape()
+
+    def map_server_info_update(self,occupancy_grid_msg):
+        """Update stored info about occupancy_grid
+        """
+        self.occupancy_grid = occupancy_grid_msg.map.data
+        self.map_resolution = occupancy_grid_msg.map.info.resolution
+        self.map_height = occupancy_grid_msg.map.info.height
+        self.map_width = occupancy_grid_msg.map.info.width
+        logging.info("Map metadata updated")
 
     def update_shape(self):
         """Update the robot's map_obj.
