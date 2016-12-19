@@ -61,7 +61,7 @@ class Map(object):
     # TODO: @Config Change plot_robbers to just be a string
     # TODO: @Refactor Seperate map and interface
 
-    def __init__(self, map_name='fleming', bounds=[-5, -5, 5, 5],
+    def __init__(self, map_name='fleming', bounds=[0, 5.1, 0, 4.2],
                  plot_robbers=True, map_display_type='probability',
                  combined_only=True, publish_to_ROS=False):
 
@@ -315,7 +315,7 @@ class Map(object):
                 filter_ = self.fusion_engine.filters[ax_name]
 
                 self.probability_layers[ax_name] = \
-                    ProbabilityLayer(filter_, fig=self.fig, ax=ax, 
+                    ProbabilityLayer(filter_, fig=self.fig, ax=ax,
                                      bounds=self.bounds)
 
     def change_published_ax(self, msg):
@@ -358,7 +358,7 @@ def set_up_fleming(map_):
 
     Parameters
     ----------
-    map_ : Map 
+    map_ : Map
         The map to add elements.
 
     """
@@ -458,7 +458,7 @@ def set_up_fleming(map_):
     #                    [[-9.5, -1], [-9.5, 1.4], [4, 1.4], [4, -1]],
     #                    [[-9.5, -3.33], [-9.5, -1], [-7, -1], [-7, -3.33]],
     #                    ])
-    s = 0.0  # coarse scale factor 
+    s = 0.0  # coarse scale factor
     points = np.array([[[-7.0 - s, -3.33], [-7.0 - s, -1 + s], [-2 + s, -1 + s], [-2 + s, -3.33]],
                        [[-2 - s, -3.33], [-2 - s, -1 + s], [4.0, -1 + s], [4.0, -3.33]],
                        [[-9.5, 1.4 - s], [-9.5, 3.68], [0 + s, 3.68], [0 + s, 1.4 - s]],

@@ -36,14 +36,18 @@ class SimpleGoalPlanner(GoalPlanner):
 
 		feasible_point_generated = False
 		bounds = self.feasible_layer.bounds
+		#bounds = [0,5,0,4.25]
+
 		while not feasible_point_generated:
 			x = random.uniform(bounds[0], bounds[2])
 			y = random.uniform(bounds[1], bounds[3])
 			goal_pt = Point(x, y)
+			print 'checking point: %d, %d' %(x,y)
 			if self.feasible_layer.pose_region.contains(goal_pt):
 				feasible_point_generated = True
 
 		goal_pose = [x, y, theta]
+
 
 		logging.info("New goal: {}".format(["{:.2f}".format(a) for a in
 											goal_pose]))

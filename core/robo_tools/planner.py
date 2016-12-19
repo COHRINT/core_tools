@@ -154,7 +154,7 @@ class GoalPlanner(object):
         self.stuck_distance = 0.1  # [m] distance traveled before assumed stuck
         if self.robot.publish_to_ROS:
             # self.stuck_buffer = 75  # time steps after being stuck before checking
-            self.stuck_buffer = 400
+            self.stuck_buffer = 100
         else:
             # self.stuck_buffer = 50
             self.stuck_buffer = 300
@@ -163,7 +163,7 @@ class GoalPlanner(object):
         self.rotation_allowance = 0.5  # [deg] acceptable rotation to a goal
 
     @abstractmethod
-    def find_goal_pose(self):
+    def find_goal_pose(self,positions=None):
         """Find a goal pose, agnostic of planner type.
 
         Parameters
@@ -267,9 +267,9 @@ class GoalPlanner(object):
                             int(goal_pose[1]/resolution)]
 
         if goal_pose_cells[0] > map_width or goal_pose_cells[1] > map_height:
-            print 'x_pos: %f'%x_cell
-            print 'y_pos: %f'%y_cell
-            logging.warn("Pose is not feasible. Finding new pose...")
+            print 'x_pos: %f'%goal_pose_cells[0]
+            print 'y_pos: %f'%goal_pose_cells[1]
+            logging.warn("Pose is outside of map bounds. Finding new pose...")
             return False
 
         if goal_pose_cells[0] - grid_area_dim > 0:
@@ -323,7 +323,7 @@ class GoalPlanner(object):
             self.pub.publish(self.move_base_goal)
 
     @abstractmethod
-    def update(self):
+    def update(self,positions=None):
         """Checks to see if goal has been reached, assigns new goals,
             and updates goal status
 
@@ -336,12 +336,11 @@ class GoalPlanner(object):
         """
         current_status = self.goal_status
         new_status = current_status
-
         if current_status == 'without a goal':
             if self.type == 'stationary':
                 new_status = 'done'
             else:
-                self.goal_pose = self.find_goal_pose()
+                self.goal_pose = self.find_goal_pose(positions=positions)
                 if not self.feasible_pose(self.goal_pose,
                                             self.robot.map_resolution,
                                             self.robot.diameter,
@@ -370,7 +369,7 @@ class GoalPlanner(object):
         elif current_status == 'stuck':
             #prev_type = self.type
             #self.type = 'simple'
-            self.goal_pose = self.find_goal_pose()
+            self.goal_pose = self.find_goal_pose(positions=positions)
             if not self.feasible_pose(self.goal_pose,
                                         self.robot.map_resolution,
                                         self.robot.diameter,

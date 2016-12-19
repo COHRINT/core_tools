@@ -99,14 +99,7 @@ class Robot(object):
         else:
             self.publish_to_ROS = True
 
-        # IF ROS publishing, subscribe to occupancy grid topic
-        # if self.publish_to_ROS:
-        #     import rospy
-        #     from nav_msgs.msg import OccupancyGrid, MapMetaData
-        #     rospy.Subscriber(self.name + '/map/',OccupancyGrid,self.map_server_info_update)
-        #     rospy.sleep(10)
-        #     logging.info("{} received new occupancy grid".format(self.name))
-        #     self.occupancy_threshold = 50
+        # if publishing to ROS, create client for occupancy grid service
         if self.publish_to_ROS:
             import rospy
             import nav_msgs.msg
@@ -150,10 +143,6 @@ class Robot(object):
         elif goal_planner_type == 'pomdp':
             from pomdp_planner import PomdpGoalPlanner
             self.goal_planner = PomdpGoalPlanner(self,**goal_planner_cfg)
-
-        elif goal_planner_type == 'secondary_test':
-            from secondary_goals_test import SecondaryTest
-            self.goal_planner = SecondaryTest(self,**goal_planner_cfg)    
 
         # elif self.goal_planner_type == 'trajectory':
         #     self.goal_planner
@@ -206,7 +195,7 @@ class Robot(object):
         self.map_obj.move_absolute(self.pose2D.pose)
 
     @abstractmethod
-    def update(self, i=0):
+    def update(self, i=0, positions=None):
         """Update all primary functionality of the robot.
 
         This includes planning and movement for both cops and robbers,
@@ -226,7 +215,7 @@ class Robot(object):
         if self.mission_planner.mission_status is not 'stopped':
             # Update statuses and planners
             self.mission_planner.update()
-            self.goal_planner.update()
+            self.goal_planner.update(positions=positions)
             if self.publish_to_ROS is False:
                 self.path_planner.update()
                 self.controller.update()
@@ -235,6 +224,7 @@ class Robot(object):
             self.pose_history = np.vstack((self.pose_history,
                                            self.pose2D.pose[:]))
             self.update_shape()
+
 
 
 class ImaginaryRobot(object):

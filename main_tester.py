@@ -13,96 +13,117 @@ import numpy as np
 
 from core.helpers.config import load_config
 from core.robo_tools.vagabond import Vagabond
+from core.robo_tools.cop import Cop
+from core.robo_tools.robber import Robber
 
 class ReliableVagabond(object):
-    """
-    Parameters
-    ----------
-    param : param_type, optional
-        param_description
-    Attributes
-    ----------
-    attr : attr_type
-        attr_description
-    Methods
-    ----------
-    attr : attr_type
-        attr_description
-    """
+	"""
+	Parameters
+	----------
+	param : param_type, optional
+		param_description
+	Attributes
+	----------
+	attr : attr_type
+		attr_description
+	Methods
+	----------
+	attr : attr_type
+		attr_description
+	"""
 
-    def __init__(self, config_file='config.yaml'):
+	def __init__(self, config_file='config.yaml'):
 
-        # Load configuration files
-        self.cfg = load_config(config_file)
+		# Load configuration files
+		self.cfg = load_config(config_file)
 
-       # Configure Python's logging
-        logger_level = logging.getLevelName(self.cfg['main']['logging_level'])
-        logger_format = '[%(levelname)-7s] %(funcName)-30s %(message)s'
-        try:
-            logging.getLogger().setLevel(logger_level)
-            logging.getLogger().handlers[0]\
-                .setFormatter(logging.Formatter(logger_format))
-        except IndexError:
-            logging.basicConfig(format=logger_format,
-                                level=logger_level,
-                               )
-        np.set_printoptions(precision=self.cfg['main']['numpy_print_precision'],suppress=True)
-        # Set up a ROS node (if using ROS)
-        if self.cfg['main']['use_ROS']:
-            import rospy
-            rospy.init_node(self.cfg['main']['ROS_node_name'],
-                            log_level=rospy.DEBUG)
+	   # Configure Python's logging
+		logger_level = logging.getLevelName(self.cfg['main']['logging_level'])
+		logger_format = '[%(levelname)-7s] %(funcName)-30s %(message)s'
+		try:
+			logging.getLogger().setLevel(logger_level)
+			logging.getLogger().handlers[0]\
+				.setFormatter(logging.Formatter(logger_format))
+		except IndexError:
+			logging.basicConfig(format=logger_format,
+								level=logger_level,
+							   )
+		np.set_printoptions(precision=self.cfg['main']['numpy_print_precision'],suppress=True)
+		# Set up a ROS node (if using ROS)
+		if self.cfg['main']['use_ROS']:
+			import rospy
+			rospy.init_node(self.cfg['main']['ROS_node_name'],
+							log_level=rospy.DEBUG)
 
-        # Link node to Python's logger
-        handler = logging.StreamHandler()
-        handler.setFormatter(logging.Formatter(logger_format))
-        logging.getLogger().addHandler(handler)
+		# Link node to Python's logger
+		handler = logging.StreamHandler()
+		handler.setFormatter(logging.Formatter(logger_format))
+		logging.getLogger().addHandler(handler)
 
-        # Create robots
-        self.create_actors()
-        time.sleep(4)
-        self.headless_mode()
+		# robot positions
+		self.positions = {}
 
-    #Start from here
+		# Create robots
+		self.create_actors()
+		time.sleep(4)
+		self.headless_mode()
 
-    def headless_mode(self):
-        """Runs the simulation without any animation output.
-        """
-        i = 0
-        max_run_time = self.cfg['main']['max_run_time']
+	#Start from here
 
-        while i < max_run_time:
-            self.update(i)
-            i += 1
+	def headless_mode(self):
+		"""Runs the simulation without any animation output.
+		"""
+		i = 0
+		max_run_time = self.cfg['main']['max_run_time']
+		while i < max_run_time:
+			self.update(i)
+			i += 1
 
-        logging.warn('Experiment has reached the max run time of {} frames! \
-                        \nExperiment ending...'.format(i))
-        # while self.vagabonds['Deckard'].mission_planner.mission_status != 'stopped':
-        #     self.update(i)
-        #     i += 1
-            # time.sleep(0.2)
+		logging.warn('Experiment has reached the max run time of {} frames! \
+						\nExperiment ending...'.format(i))
+		# while self.vagabonds['Deckard'].mission_planner.mission_status != 'stopped':
+		#	 self.update(i)
+		#	 i += 1
+			# time.sleep(0.2)
 
-    def update(self, i):
-        """Update all the major aspects of the simulation and record data.
-        """
-        logging.debug('Main update frame {}'.format(i))
+	def update(self, i):
+		"""Update all the major aspects of the simulation and record data.
+		"""
+		logging.debug('Main update frame {}'.format(i))
+		# Update all actors
+		for robot_name, robot in self.robots.iteritems():
+			robot.update(i,self.positions)
+			tmpKey = self.positions[robot_name];
+			tmpKey[1] = robot.pose2D._pose;
+		#	print('************************TMPKEY***********************************')
+			#print(tmpKey);
 
-        # Update all actors
-        for vagabond_name, vagabond in self.vagabonds.iteritems():
-        	vagabond.update(i)
 
-    def create_actors(self):
-        self.vagabonds = {}
+			self.positions[robot_name] = tmpKey;
 
-        for vagabond, kwargs in self.cfg['vagabonds'].iteritems():
-            if self.cfg['vagabonds'][vagabond]['use']:
-                self.vagabonds[vagabond] = Vagabond(vagabond, **kwargs)
-                logging.info('{} added to simulation'.format(vagabond))
+			logging.debug('{} update'.format(robot_name))
 
-        # Create robbers with config params
+	def create_actors(self):
+		self.robots = {}
 
-        # Use Deckard's map as the main map
-        #self.map = self.vagabonds['Deckard'].map
+		for robot, kwargs in self.cfg['robots'].iteritems():
+			if self.cfg['robots'][robot]['use']:
+				if self.cfg['robots'][robot]['type_'] == 'vagabond':
+					self.robots[robot] = Vagabond(robot, **kwargs)
+				elif self.cfg['robots'][robot]['type_'] == 'cop':
+					self.robots[robot] = Cop(robot, **kwargs)
+					self.positions[robot] = [self.cfg['robots'][robot]['type_'],(0,0,0)]
+				elif self.cfg['robots'][robot]['type_'] == 'robber':
+					self.robots[robot] = Robber(robot, **kwargs)
+					self.robots[robot].type_ = 'robber'
+					self.positions[robot] = [self.cfg['robots'][robot]['type_'],(4,4,0)]
+				logging.info('{} added to simulation'.format(robot))
+				#self.positions[robot] = [self.cfg['robots'][robot]['type_'],(0,0,0)]
+
+		# Create robbers with config params
+
+		# Use Deckard's map as the main map
+		#self.map = self.vagabonds['Deckard'].map
 
 if __name__ == '__main__':
-    rv = ReliableVagabond()
+	rv = ReliableVagabond()
