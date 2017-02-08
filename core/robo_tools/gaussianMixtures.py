@@ -1,5 +1,32 @@
 from __future__ import division
 
+
+'''
+***********************************************************
+File: gaussianMixtures.py
+Classes: GM,Gaussian
+
+Allows for the creation, use, and compression of mixtures
+of multivariate normals, or Gaussian Mixture Models (GMM).
+
+
+
+***********************************************************
+'''
+
+
+__author__ = "Luke Burks"
+__copyright__ = "Copyright 2016, Cohrint"
+__credits__ = ["Luke Burks", "Nisar Ahmed"]
+__license__ = "GPL"
+__version__ = "1.0.6"
+__maintainer__ = "Luke Burks"
+__email__ = "luke.burks@colorado.edu"
+__status__ = "Development"
+
+
+
+
 import numpy as np; 
 import random;
 from random import random; 
@@ -10,6 +37,9 @@ import math
 import copy
 import time
 from numpy.linalg import inv,det
+
+
+
 
 
 class Gaussian:
@@ -31,10 +61,27 @@ class Gaussian:
 		print("Variance: "); 
 		print(self.var); 
 		print("Weight"); 
-		print(self.weight); 
+		print(self.weight);
+
+	def fullComp(self,b):
+		if(not np.array_equal(self.mean,b.mean)):
+			return False; 
+		if(not np.array_equal(self.var,b.var)):
+			return False; 
+		if(self.weight != b.weight):
+			return False; 
+		return True; 
+
+
 
 class GM:
 	def __init__(self,u=None,s=None,w=None):
+		'''
+		Initialize with either:
+		1. Nothing, empty mixture
+		2. Single values, mixture of size 1
+		3. Lists of values, mixture of size n
+		'''
 		self.Gs = []; 
 		if(w == None):
 			self.size = 0; 
@@ -48,19 +95,38 @@ class GM:
 		self.action = -1; 
 
 
+	#Index Overrides
+	def __getitem__(self,key):
+		return self.Gs[key];
+
+	def __setitem__(self,key,value):
+		self.Gs[key] = value; 
+
 	def getMeans(self):
+		'''
+		Returns a list containing the mean
+		of each mixand
+		'''
 		ans = []; 
 		for g in self.Gs:
 			ans.append(g.mean); 
 		return ans; 
 
 	def getVars(self):
+		'''
+		Returns a list containing the variance
+		of each mixand
+		'''
 		ans = []; 
 		for g in self.Gs:
 			ans.append(g.var); 
 		return ans; 
 
 	def getWeights(self):
+		'''
+		Returns a list containing the weights
+		of each mixand
+		'''
 		ans = []; 
 		for g in self.Gs:
 			ans.append(g.weight); 
@@ -71,13 +137,13 @@ class GM:
 	def clean(self):
 
 		for g in self.Gs:
-			if(not isinstance(g.mean,list) and not isinstance(g.mean,int) and not isinstance(g.var,float)):
+			if(not isinstance(g.mean,list) and not isinstance(g.mean,int) and not isinstance(g.mean,float)):
 				g.mean = g.mean.tolist(); 
 
 			if(not isinstance(g.var,list) and not isinstance(g.var,int) and not isinstance(g.var,float)):
 				g.var = g.var.tolist(); 
 
-			if(not isinstance(g.mean,int) and not isinstance(g.var,float)):
+			if(not isinstance(g.mean,int) and not isinstance(g.mean,float)):
 				while(len(g.mean) != len(g.var)):
 					g.mean = g.mean[0]; 
 
@@ -88,6 +154,10 @@ class GM:
 
 
 	def findMAP2D(self):
+		'''
+		Retreives a 2D grid and returns the
+		maximum point
+		'''
 		[a,b,res] = self.plot2D(vis=False); 
 		MAP= [0,0]; 
 		meanVal = [-10000]; 
@@ -99,7 +169,11 @@ class GM:
 		return MAP; 
 
 	def findMAPN(self):
-		
+		'''
+		Bad approximation for the MAP point of an N-dimensional GMM.
+		Returns the mixand mean with the highest contribution from all 
+		mixands. 
+		'''
 		cands = [0]*self.size; 
 		for i in range(0,self.size):
 			for j in range(0,self.size):
@@ -109,6 +183,10 @@ class GM:
 
 
 	def plot(self,low = -20,high = 20,num = 1000,vis = True):
+		'''
+		Plots a 1D GMM from low to high, with resolution=num. 
+		If vis argument is false it returns the values at each point.
+		'''
 		a = np.linspace(low,high,num= num); 
 		b = [0.0]*num; 
 		for g in self.Gs:
@@ -117,17 +195,24 @@ class GM:
 			plt.plot(a,b);   
 			plt.show(); 
 		else:
-			return b; 
+			return [a,b]; 
 
 	def plot2D(self,low = [0,0], high = [5,5],vis = True,res = 100,xlabel = 'Cop Belief',ylabel = 'Robber Belief',title = 'Belief'):
 		
+		'''
+		Plots a contour plot of a 2D GMM from low to high in each dimension, with resolution=res. 
+		If vis argument is false it returns the arguments required to plot in order of the 
+		x values, the y values, and the calculated mixture values. 
+		Note: This may not be very efficient depending on the resolution
+		'''
+
 		c = [[0 for i in range(0,res)] for j in range(0,res)]; 		
 
 		x, y = np.mgrid[low[0]:high[0]:(float(high[0])/res), low[1]:high[1]:(float(high[1])/res)]
 
 		pos = np.dstack((x, y)) 
 		
-		self.clean(); 
+		#self.clean(); 
 
 		for g in self.Gs:
 			
@@ -150,7 +235,12 @@ class GM:
 			return x,y,c; 
 
 	def slice2DFrom4D(self,low = [0,0],high = [5,5],res = 100, dims = [2,3],vis = True,retGS = False):
-
+		'''
+		Plots a 2D GMM from a 4D GMM by ignoring entries in the mean or variance not associated with those dimensions
+		Argument retGS = True will return the 2D GMM
+		Argument vis = True will plot the 2D GMM using the plot2D function
+		Otherwise the results are returned through the plot2D(vis=False) function. 
+		'''
 		newGM = GM(); 
 		for g in self.Gs:
 			mean = [g.mean[dims[0]],g.mean[dims[1]]]; 
@@ -163,49 +253,12 @@ class GM:
 			return newGM;
 		else:
 			return newGM.plot2D(low = low,high = high,res=res,vis = vis,xlabel = 'RobberX',ylabel = 'RobberY',title = 'Cops Belief of Robber'); 
-
-
-	def marginalizeTo2DFrom4D(self,low = [0,0],high = [5,5],res = 50):
-		#Sums out the first two dims
-		x, y = np.mgrid[low[0]:high[0]:(float(high[0])/res), low[1]:high[1]:(float(high[1])/res)]
-		x2, y2 = np.mgrid[low[0]:high[0]:(float(high[0])/res), low[1]:high[1]:(float(high[1])/res)]
-
-		pos = np.dstack((x,x2,y,y2))  
-
-
-		c = [[[[0 for i in range(0,res)] for k in range(0,res)] for l in range(0,res)] for j in range(0,res)]; 
-
 		
-
-		A = np.linspace(low[0],high[0]-high[0]/res,res).tolist();
-		B = np.linspace(low[1],high[1]-high[1]/res,res).tolist();  
-		
-		
-		for g in self.Gs:
-			for i in range(0,res):
-				for j in range(0,res):
-					for k in range(0,res):
-						for l in range(0,res):
-							c[i][j][k][l] +=mvn.pdf([i,j,k,l],g.mean,g.var)*g.weight; 
-		
-		d = [[0 for i in range(0,res)] for j in range(0,res)]; 	
-
-
-		
-		for i in range(0,res):
-			for j in range(0,res):
-				for k in range(0,res):
-					for l in range(0,res):
-						d[k][l] += c[i][j][k][l]; 
-		
-
-		 
-
-		return x2,y2,d; 
-		
-
 
 	def normalizeWeights(self):
+		'''
+		Normalizes the weights of the mixture such that they all add up to 1. 
+		'''
 		suma = 0; 
 		for g in self.Gs:
 			suma += g.weight; 
@@ -214,17 +267,28 @@ class GM:
 		self.size = len(self.Gs); 
 
 	def addGM(self,b):
+		'''
+		Combines a new mixture with this one. 
+		'''
 		for i in range(0,len(b.Gs)):
 			self.addG(b.Gs[i]);
 		self.size = len(self.Gs); 
 
+	def addNewG(self,mean,var,weight):
+		'''
+		Adds another mixand to this mixture by specifying the parameters of the Gaussian.
+		'''
+		self.addG(Gaussian(mean,var,weight)); 
+
 	def addG(self,b):
+		'''
+		Adds another mixand to this mixture by specifying the Gaussian directly
+		'''
 		self.Gs += [b];
 		self.size+=1; 
 		self.size = len(self.Gs); 
 
 	def display(self):
-		 
 		print("Means"); 
 		print([self.Gs[i].mean for i in range(0,self.size)]); 
 		print("Variances"); 
@@ -235,44 +299,38 @@ class GM:
 			print("Action"); 
 			print(self.action); 
 
-	def comp(self,b):
+	def fullComp(self,b):
+		'''
+		Compares two GMMs. If they are identical, return true,
+		else return false. 
+		Works for the general case
+		'''
 		if(self.size != b.size):
 			return False; 
 
-		for g in range(0,self.size):
-			if(self.Gs[g].mean != b.Gs[g].mean):
+		for i in range(0,self.size):
+			if(not np.array_equal(self.Gs[i].mean,b.Gs[i].mean)):
 				return False; 
-			if(self.Gs[g].weight != b.Gs[g].weight):
+			if(not np.array_equal(self.Gs[i].var,b.Gs[i].var)):
 				return False; 
-
-			if(isinstance(self.Gs[g].var,(int,float))):
-				if(self.Gs[g].var != b.Gs[g].var):
-					return False; 
-			else:
-				for i in self.Gs[g].var:
-					if(i not in b.Gs[g].var):
-						return False; 
-					'''
-			if(self.Gs[g].var != b.Gs[g].var):
+			if(self.Gs[i].weight != b.Gs[i].weight):
 				return False; 
-				'''
-
 		return True; 
 
+
 	def pointEval(self,x):
+		'''
+		Evaluates the GMM at a point x by summing together each mixands contribution
+		'''
 		suma = 0; 
 		self.clean(); 
 		for g in self.Gs:
 			suma += g.weight*mvn.pdf(x,g.mean,g.var); 
 		return suma; 
 
-
-	def distance2D(self,a,b):
-		ans = math.sqrt((a[0] - b[0])**2 + (a[1]-b[1])**2); 
-		return ans; 
-
-	#General N-dimensional euclidean distance
+	
 	def distance(self,a,b):
+		#General N-dimensional euclidean distance
 		dist = 0; 
 
 		for i in range(0,len(a)):
@@ -280,100 +338,137 @@ class GM:
 		dist = math.sqrt(dist); 
 		return dist; 
 	
+	def ISD(self,g2):
+		#Integrated Squared Difference
+		#From "Cost-Function-Based Gaussian Mixture Reduction for Target Tracking"
+		#by Jason Williams, Peter Maybeck
+
+		#Note: Can be expensive f
+
+		#Js = Jhh - 2Jhr + Jrr
+		#Jhh = self-likeness for g1
+		#Jhr = cross-likeness 
+		#Jrr = self-likeness for g2
+
+		Jhh = 0; 
+		for g in self.Gs:
+			for h in self.Gs:
+				Jhh += g.weight*h.weight*mvn.pdf(g.mean,h.mean,np.matrix(g.var) + np.matrix(h.var)); 
+
+		Jrr = 0; 
+		for g in g2.Gs:
+			for h in g2.Gs:
+				Jrr += g.weight*h.weight*mvn.pdf(g.mean,h.mean,np.matrix(g.var) + np.matrix(h.var)); 
+
+		Jhr = 0; 
+		for g in self.Gs:
+			for h in g2.Gs:
+				Jhr += g.weight*h.weight*mvn.pdf(g.mean,h.mean,np.matrix(g.var) + np.matrix(h.var)); 
+
+		Js = Jhh-2*Jhr+Jrr; 
+		return Js; 
+
+
 	#General N-dimensional
-	def kmeansCondensationN(self,k=10,lowInit=None,highInit = None):
+	def kmeansCondensationN(self,k=10,lowInit=None,highInit = None,maxIter = 100):
 		
+		'''
+		Condenses mixands by first clustering them into k groups, using
+		k-means. Then each group is condensed to a single
+		Gaussian using Runnalls Method. Each Gaussian is then added to a new GMM. 
+		
+		Has a tendency to overcondense
+
+		Inputs:
+		k: number of mixands in the returned GMM
+		lowInit: lower bound on the placement of initial grouping means
+		highInit: upper bound on placement of initial grouping means
+
+		'''
+
+		if(self.size <= k):
+			return self; 
+
 		if(lowInit == None):
 			lowInit = [0]*len(self.Gs[0].mean);
+
 		if(highInit == None):
 			highInit = [5]*len(self.Gs[0].mean)
 
-		'''
-		#try removing any outside of the area?
-		toRem = []; 
-		for g in self.Gs:
-			for i in range(0,len(highInit)):
-				if(g.mean[i] > highInit[i] or g.mean[i] < lowInit[i]):
-					toRem.append(g); 
-					break; 
 
-		for g in toRem:
-			if(g in self.Gs):
-				self.Gs.remove(g); 
-		'''
 
+
+
+
+		#Initialize the means. Spread randomly through the bounded space
 		means = [0]*k; 
-
 		for i in range(0,k):
 			tmp = []; 
-			for j in range(0,len(self.Gs[0].mean)):
-				tmp.append(random()*(highInit[j]-lowInit[j]) + lowInit[j]); 
+			if(isinstance(self.Gs[0].mean,list)):
+				for j in range(0,len(self.Gs[0].mean)):
+					tmp.append(random()*(highInit[j]-lowInit[j]) + lowInit[j]); 
+			else:
+				tmp.append(random()*(highInit-lowInit) + lowInit); 
 			means[i] = tmp; 
 
+		converge = False; 
+		count = 0; 
+		newMeans = [0]*k; 
 
-		clusters = [GM() for i in range(0,k)]; 
-		for g in self.Gs:
-			clusters[np.argmin([self.distance(g.mean,means[j]) for j in range(0,k)])].addG(g); 
+		while(converge == False and count < maxIter):
 
-		for c in clusters:
-			c.condense(1); 
-
-		ans = GM(); 
-		for c in clusters:
-			ans.addGM(c);  
-
-		ans.action = self.action; 
-
-		return ans;
-	
-	def kmeansCondensation(self,k = 10,lowInit = [0,0], highInit = [5,5]):
-		#only pursues a single clustering step, does not attempt to converge
-
-		means = [0]*k; 
-		for i in range(0,k):
-			#means[i] = [(i/k)*(highInit[0]-lowInit[0]) - lowInit[0],  (i/k)*(highInit[1]-lowInit[1]) - lowInit[1]]; 
-			means[i] = [random()*(highInit[0]-lowInit[0]) - lowInit[0],  random()*(highInit[1]-lowInit[1]) - lowInit[1]]; 
-
-		
-		clusters = [GM() for i in range(0,k)]; 
+			clusters = [GM() for i in range(0,k)]; 
+			for g in self.Gs:
+				#put the gaussian in the cluster which minimizes the distance between the distribution mean and the cluster mean
+				if(isinstance(g.mean,list)):
+					clusters[np.argmin([self.distance(g.mean,means[j]) for j in range(0,k)])].addG(g); 
+				else:
+					clusters[np.argmin([self.distance([g.mean],means[j]) for j in range(0,k)])].addG(g); 
 
 
-		for g in self.Gs:
-			#put the gaussian in the cluster which minimizes the distance between the distribution mean and the cluster mean
-			clusters[np.argmin([self.distance2D(g.mean,means[j]) for j in range(0,k)])].addG(g);  
-			#print(np.argmin([distance2D(g.mean,means[j]) for j in range(0,k)]))
-		
-			
+			#find the mean of each cluster
+			newMeans = [0]*k; 
+			for i in range(0,k):
+				if(isinstance(self.Gs[0].mean,list)):
+					newMeans[i] = np.array([0]*len(self.Gs[0].mean));
+				for g in clusters[i].Gs:
+					newMeans[i] = np.add(newMeans[i],np.divide(g.mean,clusters[i].size)); 
 
-		#reorient the means
-		for i in range(0,k):
-			suma = [0,0]; 
-			for g in clusters[i].Gs:
-				suma[0] += g.mean[0]; 
-				suma[1] += g.mean[1]; 
-			if(clusters[i].size != 0):
-				suma[0] = suma[0]/clusters[i].size; 
-				suma[1] = suma[1]/clusters[i].size; 
-			means[i] = suma; 
 
+			if(np.array_equal(means,newMeans)):
+				converge = True; 
+			count = count+1; 
 
 		#condense each cluster
 		for c in clusters:
-			print(clusters.index(c))
 			c.condense(1); 
 
 		#add each cluster back together
 		ans = GM(); 
 		for c in clusters:
 			ans.addGM(c);  
-
 		ans.action = self.action; 
 
-		#return big cluster
-		return ans; 
+		#Make sure everything is positive semidefinite
+		#TODO: dont just remove them, fix them?
+		dels = []; 
+		for g in ans.Gs:
+			if(det(np.matrix(g.var)) <= 0):
+				dels.append(g); 
+		for rem in dels:
+			if(rem in ans.Gs):
+				ans.Gs.remove(rem);
+				ans.size -= 1 
+
+
+		#return the resulting GMM
+		return ans;
 	
 
 	def printClean(self,slices):
+		'''
+		Cleans lists in preparation for printing to plain text files
+		'''
 		slices = str(slices); 
 		slices = slices.replace(']',''); 
 		slices = slices.replace(',','');
@@ -381,6 +476,13 @@ class GM:
 		return slices;
 
 	def printGMArrayToFile(self,GMArr,fileName):
+		'''
+		Prints an Array of GMs to a text file, in a way that can be read
+		by the readGMArry4D function or similar functions.
+
+		Note: The only reason this exists is due to a phantom error using numpy load and save
+		on one of our lab computers. Highly recommend just pickleing these things. 
+		'''
 		f = open(fileName,"w"); 
 	
 		for i in range(0,len(GMArr)):
@@ -388,6 +490,12 @@ class GM:
 		f.close();
 
 	def printToFile(self,file):
+		'''
+		Prints a single Gaussian Mixture to a plain text file
+
+		Note: The only reason this exists is due to a phantom error using numpy load and save
+		on one of our lab computers. Highly recommend just pickleing these things. 
+		'''
 		#first line is N, number of gaussians
 		#next N lines are, mean, variance, weight
 		file.write(str(self.size) + " " + str(self.action) + "\n"); 
@@ -398,6 +506,15 @@ class GM:
 			file.write(m + " " + var + " " + w + "\n"); 
 
 	def readGMArray4D(self,fileName):
+
+		'''
+		Extracts a 4 dimensional Gaussian Mixture from a text file 
+		created by printGMArrayToFile function.
+
+		Note: The only reason this exists is due to a phantom error using numpy load and save
+		on one of our lab computers. Highly recommend just pickleing these things. 
+		'''
+
 		file = open(fileName,"r"); 
 		lines = np.fromfile(fileName,sep = " "); 
 		
@@ -432,22 +549,67 @@ class GM:
 
 
 	def scalerMultiply(self,s):
+		'''
+		Multiplies the weight of each mixand by scalar s
+		'''
 		for g in self.Gs:
 			g.weight = s*g.weight; 
 
+	def GMProduct(self,b,cond = -1):
+		'''
+		Returns the product of two Gaussian Mixtures, which is also a Gaussian Mixture
+
+		If cond != -1, condenses the mixture to cond mixands before returning
+		'''
+		result = GM(); 
+		for g1 in self.Gs:
+			u1 = copy.deepcopy(np.matrix(g1.mean)); 
+			var1 = np.matrix(g1.var); 
+			w1 = g1.weight; 
+			for g2 in b.Gs:
+				u2 = copy.deepcopy(np.matrix(g2.mean)); 
+				var2 = np.matrix(g2.var); 
+				w2 = g2.weight; 
+
+				weight = w1*w2*mvn.pdf(u1.tolist()[0],u2.tolist()[0],var1+var2); 
+				var = (var1.I + var2.I).I; 
+				mean = var*(var1.I*np.transpose(u1) + var2.I*np.transpose(u2)); 
+				mean = np.transpose(mean).tolist()[0]; 
+				var = var.tolist();
+
+				result.addNewG(mean,var,weight); 
+
+		if(cond != -1):
+			result.condense(cond); 
+		return result; 
+
+
+
+
 	def condense(self, max_num_mixands=None):
        
-		
+		'''
+		Runnalls Method for Gaussian Mixture Condensation.
+		Adapted from Nick Sweets gaussian_mixture.py
+		https://github.com/COHRINT/cops_and_robots/blob/dev/src/cops_and_robots/fusion/gaussian_mixture.py
+
+		Now valid for negative weights
+		If mixture contains all identical mixands at any point, it returns the mixture as is. 
+
+		'''
+
 		if max_num_mixands is None:
 			max_num_mixands = self.max_num_mixands
 
 		
 
+
+
 		#Check if any mixands are small enough to not matter
 		#specifically if they're weighted really really low
 		dels = []; 
 		for g in self.Gs:
-			if(g.weight < 0.000001):
+			if(abs(g.weight) < 0.000001):
 				dels.append(g);
 
 		for rem in dels:
@@ -455,10 +617,27 @@ class GM:
 				self.Gs.remove(rem);
 				self.size = self.size-1; 
 
+
+		#Check if any mixands are identical
+		dels = []; 
+		for i in range(0,self.size):
+			for j in range(0,self.size):
+				if(i==j):
+					continue;
+				g1 = self.Gs[i]; 
+				g2 = self.Gs[j]; 
+				if(g1.fullComp(g2) and g1 not in dels):
+					dels.append(g2); 
+					g1.weight = g1.weight*2; 
+		for rem in dels:
+			if(rem in self.Gs):
+				self.Gs.remove(rem);
+				self.size = self.size-1; 
+
+
 		#Check if merging is useful
 		if self.size <= max_num_mixands:
-		    return
-
+			return 0; 
 
 		# Create lower-triangle of dissimilarity matrix B
 		#<>TODO: this is O(n ** 2) and very slow. Speed it up! parallelize?
@@ -478,12 +657,12 @@ class GM:
 		toRemove = []; 
 		while self.size > max_num_mixands:
 		    # Find most similar mixands
-		   
+
 			try:
-				min_B = B[B>0].min()
+				min_B = B[abs(B)>0].min()
 			except:
 				self.display(); 
-				raise; 
+				raise;  
 
 
 
@@ -532,6 +711,17 @@ class GM:
 		for rem in toRemove:
 			if(rem in self.Gs):
 				self.Gs.remove(rem); 
+
+		#Make sure everything is positive semidefinite
+		#TODO: dont just remove them, fix them?
+		dels = []; 
+		for g in self.Gs:
+			if(det(np.matrix(g.var)) <= 0):
+				dels.append(g); 
+		for rem in dels:
+			if(rem in self.Gs):
+				self.Gs.remove(rem);
+				self.size -= 1 
 		
 
 		
@@ -544,11 +734,12 @@ class GM:
 		w_j, mu_j, P_j = mix_j
 		_, _, P_ij = self.merge_mixands(mix_i, mix_j)
 
+		'''
 		#TODO: This is different
 		if(w_i < 0 and w_j< 0):
 			w_i = abs(w_i); 
 			w_j = abs(w_j); 
-
+		'''
 
 		if(P_ij.ndim == 1 or len(P_ij.tolist()[0]) == 1):
 				if(not isinstance(P_ij,(int,list,float))):
@@ -589,7 +780,6 @@ class GM:
 		#print(logdet_P_ij,logdet_P_j,logdet_P_i)
 
 		b = 0.5 * ((w_i + w_j) * logdet_P_ij - w_i * logdet_P_i - w_j * logdet_P_j)
-
 		return b
 
 	def merge_mixands(self,mix_i, mix_j):
@@ -638,202 +828,186 @@ class GM:
 				c[i] = a[i]-b[i]; 
 			return c; 
 
+
+
 	
 
 
-	def Estep(self,weight,bias,prior_mean,prior_var,alpha = 0.5,zeta_c = 1,modelNum=0):
-		
-		#start the VB EM step
-		lamb = [0]*len(weight); 
+def TestGMProduct():
+	a = GM([1,8,3],[1,1,1],[1,1,1]); 
+	b = GM([4,2,6],[1,1,1],[1,1,1]); 
+	c = a.GMProduct(b); 
 
-		for i in range(0,len(weight)):
-			lamb[i] = self._lambda(zeta_c[i]); 
+	low = 0;
+	high = 10; 
+	num = 1000; 
+	x = np.linspace(low,high,num); 
 
-		hj = 0;
+	aPlot = a.plot(low=low,high = high,num=num,vis = False); 
+	bPlot = b.plot(low=low,high = high,num=num,vis=False); 
+	cPlot = c.plot(low=low,high = high,num=num,vis=False); 
 
-		suma = 0; 
-		for c in range(0,len(weight)):
-			if(modelNum != c):
-				suma += weight[c]; 
-
-		tmp2 = 0; 
-		for c in range(0,len(weight)):
-			tmp2+=lamb[c]*(alpha-bias[c])*weight[c]; 
-	 
-		hj = 0.5*(weight[modelNum]-suma)+2*tmp2; 
-
-
-
-
-		Kj = 0; 
-		for c in range(0,len(weight)):
-			Kj += lamb[c]*weight[c]*weight[c]; 
-		Kj = Kj*2; 
-
-		Kp = prior_var**-1; 
-		hp = Kp*prior_mean; 
-
-		Kl = Kp+Kj; 
-		hl = hp+hj; 
-
-		mean = (Kl**-1)*hl; 
-		var = Kl**-1; 
-
-
-		yc = [0]*len(weight); 
-		yc2= [0]*len(weight); 
-
-		for c in range(0,len(weight)):
-			yc[c] = weight[c]*mean + bias[c]; 
-			yc2[c] = weight[c]*(var + mean*mean)*weight[c] + 2*weight[c]*mean*bias[c] + bias[c]**2; 
-
-
-		return [mean,var,yc,yc2]; 
-
-
-	def Mstep(self,m,yc,yc2,zeta_c,alpha,steps):
-
-		z = zeta_c; 
-		a = alpha; 
-
-		for i in range(0,steps):
-			for c in range(0,len(yc)):
-				z[c] = math.sqrt(yc2[c] + a**2 - 2*a*yc[c]); 
-
-			num_sum = 0; 
-			den_sum = 0; 
-			for c in range(0,len(yc)):
-				num_sum += self._lambda(z[c])*yc[c]; 
-				den_sum += self._lambda(z[c]); 
-
-			a = ((m-2)/4 + num_sum)/den_sum; 
-
-		return [z,a]
-
-
-	def _lambda(self,zeta):
-		return (1/(2*zeta))*(1/(1+math.exp(-zeta)) - 1/2);
-
-
-	def calcCHat(self,prior_mean,prior_var,mean,var,alpha,zeta_c,yc,yc2,mod):
-		prior_var = np.matrix(prior_var); 
-		prior_mean = np.matrix(prior_mean); 
-		var_hat = np.matrix(var); 
-		mu_hat = np.matrix(mean); 
-
-		
-		#KLD = 0.5*(np.log(prior_var/var) + prior_var**-1*var + (prior_mean-mean)*(prior_var**-1)*(prior_mean-mean)); 
-
-		KLD = 0.5 * (np.log(det(prior_var) / det(var_hat)) +
-							np.trace(inv(prior_var) .dot (var_hat)) +
-							(prior_mean - mu_hat).T .dot (inv(prior_var)) .dot
-							(prior_mean - mu_hat));
-
-
-		suma = 0; 
-		for c in range(0,len(zeta_c)):
-			suma += 0.5 * (alpha + zeta_c[c] - yc[c]) \
-	                    - self._lambda(zeta_c[c]) * (yc2[c] - 2 * alpha
-	                    * yc[c] + alpha ** 2 - zeta_c[c] ** 2) \
-	                    - np.log(1 + np.exp(zeta_c[c])) 
-		return yc[mod] - alpha + suma - KLD + 1; 
-
-		
-
-
-	def numericalProduct(self,likelihood,x):
-		prod = [0 for i in range(0,len(likelihood))]; 
-
-		for i in range(0,len(x)):
-			prod[i] = self.pointEval(x[i])*likelihood[i]; 
-		return prod; 
-
-
-	def runVB(self,weight,bias,alpha,zeta_c,modelNum):
-		post = GM(); 
-		
-		for g in self.Gs:
-			prevLogCHat = -1000; 
-
-			count = 0; 
-			while(count < 100000):
-				
-				count = count+1; 
-				[mean,var,yc,yc2] = self.Estep(weight,bias,g.mean,g.var,alpha,zeta_c,modelNum =model);
-				[zeta_c,alpha] = self.Mstep(len(weight),yc,yc2,zeta_c,alpha,steps = 20);
-				logCHat = self.calcCHat(g.mean,g.var,mean,var,alpha,zeta_c,yc,yc2,mod=model); 
-				if(abs(prevLogCHat - logCHat) < 0.00001):
-					break; 
-				else:
-					prevLogCHat = logCHat; 
-
-			post.addG(Gaussian(mean,var,g.weight*np.exp(logCHat).tolist()[0][0]))
-			
-		return post;
-
-
-
-
-
-if __name__ == "__main__":
-
-	
-	
-	'''
-	#build a softmax model
-	weight = [0,4,8]; 
-	bias = [-5,5,0];
-	zeta_c = [6,2,4]; 
-	model = 0; 
-
-	prior = GM([0,-2],[1,0.5],[1,0.5]); 
-	model = 2;
-
-	alpha = 3;
-	
-	x = [i/10 - 5 for i in range(0,100)]; 
-	softmax = [[0 for i in range(0,len(x))] for j in range(0,len(weight))];  
-	for i in range(0,len(x)):
-		tmp = 0; 
-		for j in range(0,len(weight)):
-			tmp += math.exp(weight[j]*x[i] + bias[j]);
-		for j in range(0,len(weight)):
-			softmax[j][i] = math.exp(weight[j]*x[i] + bias[j]) /tmp;
-	
-
-	post = prior.runVB(weight,bias,alpha,zeta_c,modelNum =model);
-	numApprox = prior.numericalProduct(softmax[model],x); 
-
-	modelLabels = ['left','near','right']; 
-	labels = ['likelihood','prior','VB Posterior','Numerical Posterior']; 
-	pri = prior.plot(low = -5, high = 5,num = len(x),vis = False);
-	pos = post.plot(low = -5, high = 5,num = len(x),vis = False);
-	plt.plot(x,softmax[model]); 
-	plt.plot(x,pri);
-	plt.plot(x,pos);  
-	plt.plot(x,numApprox); 
-	plt.ylim([0,1.1])
-	plt.xlim([-5,5])
-	plt.title("Fusion of prior with: " + modelLabels[model]); 
-	plt.legend(labels); 
+	plt.plot(x,aPlot); 
+	plt.plot(x,bPlot); 
+	plt.plot(x,cPlot); 
+	plt.title("Gaussian Mixture Product Test");
+	plt.legend(['First Mixture','Second Mixture','Product']); 
 	plt.show(); 
-	'''
 
+def Test2DGMProduct():
+	g1 = GM([2,1],[[1,0],[0,2]],1); 
+	g2 = GM([1,5],[[4,0],[0,1]],1); 
+
+	mix = g2.GMProduct(g1,cond=-1); 
+
+
+	[x1,y1,c1] = g1.plot2D(vis = False); 
+	[x2,y2,c2] = g2.plot2D(vis = False); 
+	[x3,y3,c3] = mix.plot2D(vis = False); 
+
+	fig,axarr = plt.subplots(3,sharex = True); 
+	axarr[0].contourf(x1,y1,c1,cmap = 'viridis'); 
+	axarr[0].set_title('First Mixture');  
+	axarr[1].contourf(x2,y2,c2,cmap = 'viridis'); 
+	axarr[0].set_title('Second Mixture'); 
+	axarr[2].contourf(x3,y3,c3,cmap = 'viridis'); 
+	axarr[0].set_title('Product Mixture'); 
+	plt.suptitle('Testing the product of 2D Gaussians'); 
+	plt.show();
+	
+
+def Test4DGMProduct():
+	#Courtesy of Mike Ouimet
+	m1 = [[0, 0, 0, 0], [1,1,1,1]]  #means
+	s1 = [np.eye(4), 2*np.eye(4)]  #variances
+
+	m2 = [[0, 1, -1, 0], [1,0,-1,1]]
+	s2 = [4*np.eye(4), 1*np.eye(4)]
+
+	g1 = GM(u=m1, s=s1, w=[1,1])
+	g2 = GM(u=m2, s=s2, w=[1,1])
+
+	mix = g2.GMProduct(g1,cond = -1)
+
+	print("The resulting mixture:"); 
+	mix.display(); 
+
+	fig,ax = plt.subplots(2,2); 
+	[x1,y1,c1] = mix.slice2DFrom4D(vis=False,dims=[0,2]); 
+	ax[0,0].contourf(x1,y1,c1,cmap = 'viridis'); 
+	ax[0,0].set_title('X1 by X3'); 
+
+	[x2,y2,c2] = mix.slice2DFrom4D(vis=False,dims=[0,3]); 
+	ax[0,1].contourf(x2,y2,c2,cmap = 'viridis'); 
+	ax[0,1].set_title('X1 by X4');
+
+	[x3,y3,c3] = mix.slice2DFrom4D(vis=False,dims=[1,2]); 
+	ax[1,0].contourf(x3,y3,c3,cmap = 'viridis'); 
+	ax[1,0].set_title('X2 by X3'); 
+
+	[x4,y4,c4] = mix.slice2DFrom4D(vis=False,dims=[1,3]); 
+	ax[1,1].contourf(x4,y4,c4,cmap = 'viridis'); 
+	ax[1,1].set_title('X2 by X4'); 
+
+	fig.suptitle("Slices along Various Axis in 2D from 4D"); 
+	plt.show();
+
+
+def TestTextFilePrinting():
 	prior = GM([0,-2,1,2],[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]],1); 
 	prior.addG(Gaussian([0,-2,1,2],[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]],1))
 
 	pri = GM([0,-2,1,2],[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]],1); 
 	pri.addG(Gaussian([0,-2,1,2],[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]],1))
 
-
-
-	file = '../models/loadTest.txt'; 
+	file = './loadTest.txt'; 
 	prior.printGMArrayToFile([prior,pri],file); 
 	tmp = GM(); 
 	post = tmp.readGMArray4D(file); 
 	post[0].display(); 
 
+def TestCondense():
+	test = GM(); 
+	for i in range(0,100):
+		test.addNewG(random()*10,random()*2,random()*5); 
+	testKmeans = copy.deepcopy(test); 
+
+	low = 0;
+	high = 10; 
+	num = 1000; 
+	x = np.linspace(low,high,num);
+	[x0,testPlot] = test.plot(low=low,high = high,num=num,vis = False); 
+
+	test.condense(10); 
+	[x1,testCondensePlot] = test.plot(low=low,high = high,num=num,vis = False);
+
+	testKmeans = testKmeans.kmeansCondensationN(k=10,lowInit = low, highInit = high); 
+	[x2,testKmeansPlot] = testKmeans.plot(low=low,high = high,num=num,vis = False);
 
 
+	plt.plot(x0,testPlot); 
+	plt.plot(x1,testCondensePlot);
+	plt.plot(x2,testKmeansPlot); 
+	plt.legend(['Original Mixture','Condensed Mixture (Runnalls)','Condensed Mixture (K-means Runnalls)']);
+	plt.title('Condensation Test: 100 to 10 mixands')
+	plt.show(); 
+
+def TestCondense2D():
+	test = GM(); 
+	for i in range(0,100): 
+		test.addG(Gaussian([random()*10,random()*10],[[random()*2,0],[0,random()*2]],random()*5)); 
+	testKmeans = copy.deepcopy(test); 
+
+	low = [0,0]; 
+	high = [10,10]; 
+	[x1,y1,c1] = test.plot2D(vis=False); 
+	test.condense(10); 
+	[x2,y2,c2] = test.plot2D(vis = False); 
+	testKmeans = testKmeans.kmeansCondensationN(k = 10, lowInit = low, highInit = high); 
+	[x3,y3,c3] = testKmeans.plot2D(vis=False); 
+
+	fig,axarr = plt.subplots(3,sharex = True); 
+	axarr[0].contourf(x1,y1,c1,cmap = 'viridis'); 
+	axarr[0].set_title('Original Mixture');  
+	axarr[1].contourf(x2,y2,c2,cmap = 'viridis'); 
+	axarr[1].set_title('Runnalls Method Condensed Mixture'); 
+	axarr[2].contourf(x3,y3,c3,cmap = 'viridis'); 
+	axarr[2].set_title('K-means + Runnalls Method Condensed Mixture'); 
+	plt.suptitle('2D Condensation Test: 100 to 10 mixands'); 
+	plt.show(); 
+
+
+def TestComparison():
+	test1 = GM(); 
+	test1.addG(Gaussian([0,1],[[1,0],[0,1]],1)); 
+	test1.addG(Gaussian([1,2],[[1,0],[0,1]],1)); 
+
+	test2 = GM(); 
+	test2.addG(Gaussian([0,1],[[1,0],[0,1]],1)); 
+	test2.addG(Gaussian([1,2],[[1,0],[0,1]],1)); 
+
+	test3 = GM(); 
+	test3.addG(Gaussian([0,5],[[1,0],[0,1]],1)); 
+	test3.addG(Gaussian([1,2],[[1,0],[0,1]],1)); 
+
+	print('Test1 and Test2: ' + str(test1.fullComp(test2))); 
+	print('Test1 and Test3: ' + str(test1.fullComp(test3))); 
+
+
+if __name__ == "__main__":
+
+	#TestGMProduct();
+	#Test2DGMProduct();
+	#Test4DGMProduct();   
+	#TestTextFilePrinting();
+	#TestCondense(); 
+	#TestCondense2D(); 
+	TestComparison(); 
+
+
+	
+
+	
+	
 
 

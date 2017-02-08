@@ -61,7 +61,7 @@ class PomdpGoalPlanner(GoalPlanner):
 				#self.is_cop = False
 
 
-
+		print('is_cop: {}, \t cop position: {} {}'.format(self.is_cop,cop_pose_x, cop_pose_y))
 
 		xy_positions = self.policy_translator.getNextPose([cop_pose_x,cop_pose_y,robber_pose_x,robber_pose_y],self.is_cop)
 

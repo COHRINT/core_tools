@@ -18,26 +18,26 @@ robots_to_use: # ['True', 'False']
 
 robots:
   Deckard:
-     type_: robber
-     use: *use_deckard
-     pose_source: *pose_source  # ['python' or a ros topic string like '/roy/odom']
-     goal_planner_cfg:
-       type_: pomdp  # ['stationary', 'simple', 'trajectory']
+    type_: robber
+    use: *use_deckard
+    pose_source: *pose_source  # ['python' or a ros topic string like '/roy/odom']
+    goal_planner_cfg:
+      type_: pomdp  # ['stationary', 'simple', 'trajectory']
   Zhora:
-     type_: robber
-     use: *use_zhora
-     pose_source: *pose_source  # ['python' or a ros topic string like '/zhora/odom']
-     goal_planner_cfg:
-       type_: pomdp  # ['stationary', 'simple', 'trajectory']
+    type_: robber
+    use: *use_zhora
+    pose_source: *pose_source  # ['python' or a ros topic string like '/zhora/odom']
+    goal_planner_cfg:
+      type_: pomdp  # ['stationary', 'simple', 'trajectory']
   Roy:
-     type_: robber
-     use: *use_roy
-     pose_source: *pose_source  # ['python' or a ros topic string like '/roy/odom']
-     goal_planner_cfg:
-       type_: pomdp  # ['stationary', 'simple', 'trajectory']
+    type_: robber
+    use: *use_roy
+    pose_source: *pose_source  # ['python' or a ros topic string like '/roy/odom']
+    goal_planner_cfg:
+      type_: pomdp  # ['stationary', 'simple', 'trajectory']
   Pris:
-     type_: cop
-     use: *use_pris
-     pose_source: *pose_source  # ['python' or a ros topic string like '/zhora/odom']
-     goal_planner_cfg:
-       type_: pomdp  # ['stationary', 'simple', 'trajectory']
+    type_: cop
+    use: *use_pris
+    pose_source: *pose_source  # ['python' or a ros topic string like '/zhora/odom']
+    goal_planner_cfg:
+      type_: pomdp  # ['stationary', 'simple', 'trajectory']

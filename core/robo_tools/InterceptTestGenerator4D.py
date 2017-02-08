@@ -470,11 +470,11 @@ class InterceptTestGenerator:
 			print("MDP Value Iteration Complete");
 			#f = open("../policies/MDP4DIntercept.npy","w");
 			#np.save(f,self.ValueFunc);
-			file = "../policies/MDP4DIntercept";
+			file = "policies/MDP4DIntercept";
 			self.ValueFunc.printGMArrayToFile([self.ValueFunc],file);
 		else:
 			#self.ValueFunc = np.load("../policies/MDP4DIntercept.npy").tolist();
-			file = "./policies/MDP4DIntercept";
+			file = "policies/MDP4DIntercept";
 			tmp = GM();
 			self.ValueFunc = tmp.readGMArray4D(file)[0];
 
@@ -624,10 +624,10 @@ class InterceptTestGenerator:
 
 			#f = open("../models/obsModel4DIntercept.npy","w");
 			#np.save(f,self.pz);
-			file = '../models/obsAltModel4DIntercept';
+			file = 'models/obsAltModel4DIntercept';
 			self.pz[0].printGMArrayToFile(self.pz,file);
 		else:
-			file = './models/obsModel4DIntercept';
+			file = 'models/obsModel4DIntercept';
 			tmp = GM();
 			self.pz = tmp.readGMArray4D(file);
 
@@ -672,7 +672,7 @@ class InterceptTestGenerator:
 			file = '../models/obsModel4DIntercept';
 			self.pz[0].printGMArrayToFile(self.pz,file);
 		else:
-			file = './models/obsModel4DIntercept';
+			file = '../models/obsModel4DIntercept';
 			tmp = GM();
 			self.pz = tmp.readGMArray4D(file);
 
@@ -707,11 +707,11 @@ class InterceptTestGenerator:
 
 			#f = open("../models/rewardModel4DIntercept.npy","w");
 			#np.save(f,self.r);
-			file = '../models/rewardModel4DIntercept';
+			file = 'models/rewardModel4DIntercept';
 			self.r.printGMArrayToFile([self.r],file);
 		else:
 			#self.r = np.load("../models/rewardModel4DIntercept.npy").tolist();
-			file = './models/rewardModel4DIntercept';
+			file = 'models/rewardModel4DIntercept';
 			tmp = GM();
 			self.r = tmp.readGMArray4D(file)[0];
 
@@ -759,6 +759,7 @@ class InterceptTestGenerator:
 			plotFlag = False;
 
 		prevX = copy.deepcopy(x);
+		act = -1;
 		if(isCop):
 			z=-1;
 			obsName = 'None';
@@ -815,8 +816,8 @@ class InterceptTestGenerator:
 			self.axes.set_title(title);
 
 
-
-		act = self.getQMDPSecondaryAction(self.b,exclude);
+		if(act == -1):
+			act = self.getQMDPSecondaryAction(self.b,exclude);
 		#x = np.random.multivariate_normal([x[0] + self.delA[act][0],x[1] + self.delA[act][1],x[2]+self.delA[act][2],x[3]+self.delA[act][3]],self.delAVar,size =1)[0].tolist();
 		x[0] = x[0] + self.delA[act][0];
 		x[1] = x[1] + self.delA[act][1];
@@ -841,7 +842,7 @@ class InterceptTestGenerator:
 			robber = self.axes.scatter(prevX[2],prevX[3],color = 'b',s = 100);
 
 			self.axes.arrow(prevX[0],prevX[1],x[0]-prevX[0],x[1]-prevX[1],head_width = 0.05,head_length=0.15, fc=col,ec=col);
-			self.axes.arrow(prevX[2],prevX[3],x[2]-prevX[2],x[3]-prevX[3],head_width = 0.05,head_length=0.25, fc='b',ec='b');
+			#self.axes.arrow(prevX[2],prevX[3],x[2]-prevX[2],x[3]-prevX[3],head_width = 0.05,head_length=0.25, fc='b',ec='b');
 			plt.pause(0.5);
 
 		return x;

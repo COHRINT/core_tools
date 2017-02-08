@@ -112,11 +112,11 @@ class ReliableVagabond(object):
 					self.robots[robot] = Vagabond(robot, **kwargs)
 				elif self.cfg['robots'][robot]['type_'] == 'cop':
 					self.robots[robot] = Cop(robot, **kwargs)
-					self.positions[robot] = [self.cfg['robots'][robot]['type_'],(0,0,0)]
+					self.positions[robot] = [self.cfg['robots'][robot]['type_'],(1,1,0)]
 				elif self.cfg['robots'][robot]['type_'] == 'robber':
 					self.robots[robot] = Robber(robot, **kwargs)
 					self.robots[robot].type_ = 'robber'
-					self.positions[robot] = [self.cfg['robots'][robot]['type_'],(4,4,0)]
+					self.positions[robot] = [self.cfg['robots'][robot]['type_'],(3,3,0)]
 				logging.info('{} added to simulation'.format(robot))
 				#self.positions[robot] = [self.cfg['robots'][robot]['type_'],(0,0,0)]
 
