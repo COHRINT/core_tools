@@ -1,0 +1,59 @@
+# YAML
+
+# Core Tools user interface parameters file.
+#
+# To add main experiment parameters to the interface they must be added to this file with the
+# following structure:
+#
+# parameter_name:
+#  data_type: ['bool','int','str' currently supported]
+#  tool_tip: [describe what the parameter does / controls]
+#  values: [list possible values of parameter; if int choose default value]
+#
+# To add robot parameters simply add the name of the parameter and the possible
+# values. NOTE: only dropdown menus are currently supported for robot parameters.
+#
+# To add another robot in addition to the main four, simply add its name to the
+# 'robots' list. 
+
+main:
+  logging_level:
+    data_type: 'str'
+    tool_tip: 'Set the level required for a message to log to the console.'
+    values: [NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICAL]
+  use_ROS:
+    data_type: 'bool'
+    tool_tip: 'Choose whether experiment will run in pure python or using ROS.'
+    values: ['True', 'False']
+  pose_source:
+    data_type: 'str'
+    tool_tip: 'Choose the source for pose information to be provided to robots.'
+    values: [python,tf]
+  headless_mode:
+    data_type: 'bool'
+    tool_tip: 'Choose if experiment will run with output animation or not.'
+    values: ['True','False']
+  numpy_print_precision:
+    data_type: 'int'
+    tool_tip: 'How many digits will be printed when numpy modules are used.'
+    values: ['2','3']
+  log_time:
+    data_type: 'bool'
+    tool_tip: 'Choose if time of experiment will be logged.'
+    values: ['True','False']
+  ROS_node_name:
+    data_type: 'str'
+    tool_tip: 'Select name of ROS node that will be created if ROS is being used.'
+    values: [Python_Node]
+  max_run_time:
+    data_type: 'int'
+    tool_tip: 'Specify number of update frames for which the experiment will run.'
+    values: ['50000']
+
+robots: [Deckard,Roy,Pris,Zhora]
+
+robot_params:
+  type_: [cop,robber]
+  goal_planner_cfg:
+    type_: [stationary,simple,trajectory,probabiltiy,pomdp]
+  pose_source: [tf,python]

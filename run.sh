@@ -20,22 +20,27 @@ echo '*** Experiment parameters can be changed in config.yaml ***'
 echo '*** Maps are generated using new_map.py ***'
 echo ' '
 
-echo "Testbed is set to run $tester. Enter [y] to continue, or specify path to different test file."
-read tester_input
-if [ $tester_input != "y" ]; then
-  tester=$tester_input
-fi
-echo " "
+# echo "Testbed is set to run $tester. Enter [n] to specify path to different test file, or any other key to continue."
+# read tester_input
+# if [ $tester_input == "n" ]; then
+#   echo "Specify new path:"
+#   read tester_input
+#   tester=$tester_input
+# fi
+# echo " "
 
 echo 'Create new map? [y/n]'
 
 read new_map
 resolution=100
 
+echo $1 $2 $3 $4
+
 robots=("deckard" "roy" "pris" "zhora")
 #1 indicates use, positons in arrays match, e.g. use[0]==1 means using deckard
 # needs to match config.yaml!
-use=(0 1 1 0)
+use=($1 $2 $3 $4)
+# use=(0 1 1 0)
 count=0
 if [ $new_map == "y" ]; then
   echo 'Enter desired resolution'
@@ -90,13 +95,15 @@ done
 echo "When vicon_nav.launch has been started on all robots, press ENTER to run experiment"
 read x
 run_input=1
-while [ $run_input -eq 1 ]
+while [ $run_input -ne 0 ]
 do
-    xterm -hold -e "python $tester"
-    echo "-------"
-    echo "Enter '1' to re-run experiment"
-    echo "or enter '0' to end the program"
+    if [ $run_input -eq 1 ]; then
+      xterm -hold -e "python $tester"
+      echo "-------"
+      echo "Enter '1' to re-run experiment"
+      echo "or enter '0' to end the program"
+    fi
     read run_input
 done
-
+echo "wheeeeeeeeee about to exit"
 exit 0

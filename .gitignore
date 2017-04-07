@@ -6,11 +6,10 @@
 
 *.DS_Store
 
-run.py
-buffer_finder.py
-feasible_pose_unit_test.py
-core/robo_tools/secondary_goals_test.py
-test_np.py
-numpy_test.npy
+*.bak
 
 misc_tools
+
+numpy_test.npy
+obsAltModel4DIntercept.npy
+secondary_goals_test.py
