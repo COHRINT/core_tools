@@ -13,3 +13,6 @@ misc_tools
 numpy_test.npy
 obsAltModel4DIntercept.npy
 secondary_goals_test.py
+
+core/robo_tools/gm_fusion.py
+core/robo_tools/audio_planner.py

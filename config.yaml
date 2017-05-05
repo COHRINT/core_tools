@@ -5,30 +5,30 @@ main:
   logging_level: NOTSET
   max_run_time: 50000
   numpy_print_precision: 2
-  pose_source: python
-  use_ROS: false
+  pose_source: tf
+  use_ROS: true
 robots:
   Deckard:
     goal_planner_cfg:
-      type_: stationary
+      type_: audio
     pose_source: tf
     type_: cop
-    use: false
+    use: true
   Pris:
     goal_planner_cfg:
       type_: stationary
     pose_source: tf
     type_: cop
-    use: true
+    use: false
   Roy:
     goal_planner_cfg:
-      type_: stationary
+      type_: pomdp
     pose_source: tf
-    type_: cop
+    type_: robber
     use: false
   Zhora:
     goal_planner_cfg:
       type_: stationary
     pose_source: tf
     type_: cop
-    use: true
+    use: false

@@ -78,6 +78,9 @@ class Robot(object):
         self.name = name
         self.pose_source = pose_source
 
+        # Robot belief
+        # self.belief = None
+
         # Setup map
         self.map = Map(**map_cfg)
 
@@ -143,6 +146,10 @@ class Robot(object):
         elif goal_planner_type == 'pomdp':
             from pomdp_planner import PomdpGoalPlanner
             self.goal_planner = PomdpGoalPlanner(self,**goal_planner_cfg)
+
+        elif goal_planner_type == 'audio':
+            from audio_planner import AudioGoalPlanner
+            self.goal_planner = AudioGoalPlanner(self,**goal_planner_cfg)
 
         # elif self.goal_planner_type == 'trajectory':
         #     self.goal_planner

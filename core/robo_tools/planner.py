@@ -120,7 +120,7 @@ class GoalPlanner(object):
 
     """
     __metaclass__ = ABCMeta
-    types = ['stationary', 'simple', 'trajectory', 'particle', 'MAP', 'pomdp','secondary_test']
+    types = ['stationary', 'simple', 'trajectory', 'particle', 'MAP', 'pomdp','secondary_test','audio']
     goal_statuses = ['stuck',
                      'at goal',
                      'moving to goal',
@@ -301,7 +301,7 @@ class GoalPlanner(object):
                     print 'x_pos: %f'%x_cell
                     print 'y_pos: %f'%y_cell
                     logging.warn("Pose is not feasible. Finding new pose...")
-                    return False
+                    return True
 
         return True
 
@@ -321,6 +321,8 @@ class GoalPlanner(object):
             self.move_base_goal.header.frame_id = '/map'
             self.move_base_goal.header.stamp = rospy.Time.now()
             self.pub.publish(self.move_base_goal)
+
+            print(self.move_base_goal.pose.position)
 
     @abstractmethod
     def update(self,positions=None):

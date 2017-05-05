@@ -14,7 +14,7 @@
 # values. NOTE: only dropdown menus are currently supported for robot parameters.
 #
 # To add another robot in addition to the main four, simply add its name to the
-# 'robots' list. 
+# 'robots' list.
 
 main:
   logging_level:
@@ -55,5 +55,5 @@ robots: [Deckard,Roy,Pris,Zhora]
 robot_params:
   type_: [cop,robber]
   goal_planner_cfg:
-    type_: [stationary,simple,trajectory,probabiltiy,pomdp]
+    type_: [stationary,simple,trajectory,probabiltiy,pomdp,audio]
   pose_source: [tf,python]
