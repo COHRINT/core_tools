@@ -1,5 +1,22 @@
 #!/usr/bin/env python
 
+'''
+policy_translator_server.py
+
+A ROS service which interfaces with a PolicyTranslator. Receives a request for
+a goal pose, which includes a belief, and responds with a new goal pose and an
+updated belief.
+'''
+
+__author__ = "Ian Loefgren"
+__copyright__ = "Copyright 2017, Cohrint"
+__credits__ = ["Ian Loefgren"]
+__license__ = "GPL"
+__version__ = "1.0"
+__maintainer__ = "Ian Loefgren"
+__email__ = "ian.loefgren@colorado.edu"
+__status__ = "Development"
+
 from policy_translator.srv import *
 from policy_translator.msg import *
 from observation_interface.msg import *
@@ -13,11 +30,6 @@ import math
 from gaussianMixtures import GM
 from PolicyTranslator import PolicyTranslator
 from belief_handling import rehydrate_msg, dehydrate_msg
-
-
-
-#<>TODO: finish translator_wrapper function
-# <>TODO: determine if method to instantiate translator object works
 
 class PolicyTranslatorServer(object):
 
@@ -33,6 +45,10 @@ class PolicyTranslatorServer(object):
         rospy.spin()
 
     def handle_policy_translator(self,req):
+        '''
+        Create an observation request, get a new goal and belief and package
+        them to respond.
+        '''
         name = req.request.name
 
         if not req.request.weights:
@@ -44,13 +60,9 @@ class PolicyTranslatorServer(object):
         belief = self.translator_wrapper(req.request.name,req.request.weights,
                                     req.request.means,req.request.variances,obs)
 
-        # print('*********')
         weights_updated = belief[0]
-        # print(weights_updated)
         means_updated = belief[1]
-        # print(means_updated)
         variances_updated = belief[2]
-        # print(variances_updated)
         goal_pose = belief[3]
 
         res = self.create_message(req.request.name,
@@ -62,6 +74,9 @@ class PolicyTranslatorServer(object):
         return res
 
     def obs_server_client(self,msg):
+        '''
+        Request an observation from the observation server.
+        '''
         rospy.wait_for_service('observation_interface')
         try:
             proxy = rospy.ServiceProxy('observation_interface',observation_server)
@@ -71,6 +86,10 @@ class PolicyTranslatorServer(object):
             print "Service call failed: %s"%e
 
     def tf_update(self,name):
+        '''
+        Get the pose of the robot making the service request using a ROS
+        transform ('tf') lookup and return that pose.
+        '''
         name = name.lower()
         ref = "/" + name + "/odom"
         child = "/" + name + "/base_footprint"
@@ -83,9 +102,9 @@ class PolicyTranslatorServer(object):
 
     def translator_wrapper(self,name,weights,means,variances,obs):
         '''
-        LUKES CODE WILL BE CALLED IN THIS FUNCTION
+        Rehydrate the belief then get the position of the calling robot, update the
+        belief and get a new goal pose. Then dehydrate the updated belief.
         '''
-
         belief = rehydrate_msg(weights,means,variances)
 
         position = self.tf_update(name)
@@ -94,34 +113,24 @@ class PolicyTranslatorServer(object):
 
         if b_updated is not None:
             (weights,means,variances) = dehydrate_msg(b_updated)
-            # print(variances)
 
         orientation = math.atan2(goal_pose[1]-position[1],goal_pose[0]-position[0])
         goal_pose.append(orientation)
 
-
-
         belief = [weights,means,variances,goal_pose]
-
-        # print('@@@@@@@@@')
-        # print(weights)
-
-
         return belief
 
     def create_message(self,name,weights,means,variances,goal_pose):
+        '''
+        Create a response message containing the new dehydrated belief and the
+        new goal pose.
+        '''
         msg = PolicyTranslatorResponse()
         msg.name = name
-        # print('&&&&&&&')
-        # print msg.name
         msg.weights_updated = weights
-        # print msg.weights_updated
         msg.means_updated = means
-        # print msg.means_updated
         msg.variances_updated = variances
-        # print msg.variances_updated
         msg.goal_pose = goal_pose
-        # print goal_pose
         return msg
 
 if __name__ == "__main__":
