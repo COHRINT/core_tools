@@ -6,6 +6,7 @@
 import sys
 import rospy
 import matplotlib
+import time
 
 matplotlib.use('Qt5Agg')
 import PyQt5
@@ -60,6 +61,7 @@ class ObsInterfaceWidget(QWidget):
         self.vert_layout.addWidget(self.app_title)
 
         self.obs_prompt = QLabel()
+        self.obs_prompt.setStyleSheet("QLabel { color : red; }")
         font.setPointSize(10)
         self.obs_prompt.setFont(font)
         self.obs_prompt.setAlignment(Qt.AlignHCenter)
@@ -140,14 +142,18 @@ class ObsInterfaceWidget(QWidget):
 
     @pyqtSlot()
     def set_obs_prompt(self):
-        text = 'Please make an observation. Last observation was {}'.format(self.obs)
+        text = 'Please make an observation.\n Last observation was {}'.format(self.obs)
+        self.obs_prompt.setStyleSheet("QLabel { color : red; }")
         self.obs_prompt.setText(text)
-        # self.obs_prompt.show()
+        self.obs_prompt.show()
+        time.sleep(1)
+        self.obs_prompt.hide()
+        self.obs_prompt.setStyleSheet("QLabel { color : black; }")
+        self.obs_prompt.show()
 
     @pyqtSlot()
     def clear_obs_prompt(self):
         self.obs_prompt.setText('')
-        # self.obs_prompt .show()
 
     def obs_handler(self,req):
         '''
@@ -178,8 +184,8 @@ class MplCanvas(FigureCanvas):
         self.setParent(parent)
 
         FigureCanvas.setSizePolicy(self,
-                                   QSizePolicy.Expanding,
-                                   QSizePolicy.Expanding)
+                                   QSizePolicy.Fixed,
+                                   QSizePolicy.Fixed)
         FigureCanvas.updateGeometry(self)
 
     def update_canvas(self,belief):

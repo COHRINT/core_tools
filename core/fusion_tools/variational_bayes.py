@@ -10,9 +10,9 @@ __copyright__ = "Copyright 2015, Cohrint"
 __credits__ = ["Nick Sweet", "Nisar Ahmed"]
 __license__ = "GPL"
 __version__ = "1.0.0"
-__maintainer__ = "Nick Sweet"
-__email__ = "nick.sweet@colorado.edu"
-__status__ = "Development"
+__maintainer__ = "Ian Loefgren"
+__email__ = "ian.loefgren@colorado.edu"
+__status__ = "Stable"
 
 
 import logging
@@ -261,7 +261,7 @@ class VariationalBayes(object):
         var_hat = np.zeros_like(np.asarray(var_VB))
         for i in range(num_samples):
             x_i = np.asarray(x[i])
-            var_hat = var_hat + w[i] * np.outer(x_i, x_i) 
+            var_hat = var_hat + w[i] * np.outer(x_i, x_i)
         var_hat -= np.outer(mu_hat, mu_hat)
 
         if mu_hat.size == 1 and mu_hat.ndim > 0:
@@ -320,7 +320,7 @@ class VariationalBayes(object):
         var_hat = np.zeros_like(np.asarray(q_var))
         for i in range(num_samples):
             x_i = np.asarray(x[i])
-            var_hat = var_hat + w[i] * np.outer(x_i, x_i) 
+            var_hat = var_hat + w[i] * np.outer(x_i, x_i)
         var_hat -= np.outer(mu_hat, mu_hat)
 
         # Ensure properly formatted output
@@ -544,7 +544,7 @@ class VariationalBayes(object):
 
 def comparison_1d():
 
-    # Define prior 
+    # Define prior
     prior_mean, prior_var = 0.3, 0.01
     min_x, max_x = -5, 5
     res = 10000
@@ -605,7 +605,7 @@ def comparison_1d():
 
 
 def comparison_2d():
-    # Define prior 
+    # Define prior
     prior_mean = np.array([2.3, 1.2])
     prior_var = np.array([[2, 0.6], [0.6, 2]])
     prior = GaussianMixture(1, prior_mean, prior_var)
@@ -649,18 +649,18 @@ def comparison_2d():
     levels_res = 30
     max_prior = np.max(prior.pdf(pos))
     prior_levels = np.linspace(0, max_prior, levels_res)
-    
+
     sm.probability()
     max_lh = np.max(sm.probs)
     lh_levels = np.linspace(0, max_lh, levels_res)
-    
+
     max_post = np.max(vb_posterior.pdf(pos))
     post_levels = np.linspace(0, max_post, levels_res)
 
     # Plot results
     fig = plt.figure()
     likelihood_label = 'Likelihood of \'{}\''.format(measurement)
-    
+
     prior_ax = plt.subplot2grid((2,32), (0,0), colspan=14)
     prior_cax = plt.subplot2grid((2,32), (0,14), colspan=1)
     prior_c = prior_ax.contourf(x_space, y_space, prior.pdf(pos), levels=prior_levels)
@@ -688,7 +688,7 @@ def comparison_2d():
 
 def gmm_sm_test(measurement='Outside'):
 
-    # Define prior 
+    # Define prior
     # prior = GaussianMixture(weights=[1, 4, 5],
     #                         means=[[0.5, 1.3],  # GM1 mean
     #                                [-0.7, -0.6],  # GM2 mean
@@ -763,7 +763,7 @@ def gmm_sm_test(measurement='Outside'):
     # Plot results
     fig = plt.figure()
     likelihood_label = 'Likelihood of \'{}\''.format(measurement)
-    
+
     prior_ax = plt.subplot2grid((2,32), (0,0), colspan=14)
     prior_cax = plt.subplot2grid((2,32), (0,14), colspan=1)
     prior_c = prior_ax.contourf(x_space, y_space, prior.pdf(pos), levels=prior_levels)
@@ -962,7 +962,7 @@ def camera_test(num_std=1, time_interval=1):
     logging.info('Initial GM:')
     logging.info(prior)
 
-    ani = animation.FuncAnimation(gm.fig, gm.update, 
+    ani = animation.FuncAnimation(gm.fig, gm.update,
         interval=time_interval,
         repeat=True,
         blit=False,

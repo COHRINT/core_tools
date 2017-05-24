@@ -1,21 +1,41 @@
 #!/usr/env/bin python
 
+__author__ = "Ian Loefgren"
+__copyright__ = "Copyright 2017, Cohrint"
+__credits__ = ["Ian Loefgren"]
+__license__ = "GPL"
+__version__ = "1.0"
+__maintainer__ = "Ian Loefgren"
+__email__ = "ian.loefgren@colorado.edu"
+__status__ = "Development"
+
 from gaussianMixtures import GM
 
 def dehydrate_msg(belief):
     '''
-    INSERT CODE TO GET WEIGHTS MEANS VARIANCES FROM BELIEF HERE
+    This method takes a belief represented by a gaussian mixture and turns the
+    n-dimensional weights, means, and variances represented by a 1xn vector, a
+    list of 1xn vectors, and a list of nxn matrices respectively into one
+    dimensional vectors.
+
+    Inputs:
+        - belief: belief represented by gaussian mixture
+
+    Outputs:
+        - weights_flat: 1xn array of weights
+        - means_flat: 1x(n*num_mixands) array of means
+        - variances_flat: 1x(n)
     '''
     weights = belief.getWeights()
     means = belief.getMeans()
     variances = belief.getVars()
 
-    # weights_length
-
-    # Means - list of 1xn vectors
+    # Weights - 1xn vector
     n = len(weights)
+    # Means - list of 1xn vectors
     r = len(means[0])
-    # total_elements = n*means_length
+
+    weights_flat = weights
     means_flat = []
     variances_flat = []
 
@@ -25,9 +45,24 @@ def dehydrate_msg(belief):
             for k in range(0,r):
                 variances_flat.append(variances[i][j][k])
 
-    return (weights,means_flat,variances_flat)
+    return (weights_flat,means_flat,variances_flat)
 
 def rehydrate_msg(weights_flat,means_flat,variances_flat):
+    '''
+    This method takes 'flattened' weights, means, and variances of a belief
+    represented by a gaussian mixture, reconstructs these into the appropriate
+    1xn vector, a list of 1xn vectors, and a list of nxn matrices respectively
+    into one dimensional vectors, and then uses these to constrct a gaussian
+    mixture class instance.
+
+    Inputs:
+        - weights_flat: array of weights
+        - means_flat: array of means
+        - variances_flat: array of variances
+
+    Outputs:
+        - belief: gaussian mixture representation of belief
+    '''
 
     if len(weights_flat) == 0:
         belief = None
@@ -35,28 +70,19 @@ def rehydrate_msg(weights_flat,means_flat,variances_flat):
     else:
         n = len(weights_flat)
         r = len(means_flat) / n
-        # print(r)
-        # print('means_flat: {}'.format(means_flat))
         n = len(weights_flat)
         means_inflate = [[] for x in xrange(n)]
         variances_inflate = [[[] for x in xrange(r)]for x in xrange(n)]
-
-        # print(variances_inflate)
 
         for i in range(0,n):
             for j in range(0,r):
                 means_inflate[i].append(means_flat[i*r+j])
                 for k in range(0,r):
                     variances_inflate[i][j].append(variances_flat[(i*(r*r))+(j*r)+k])
-        # print('#$#$#$#$#$#$#$#')
-        # print(means_inflate)
-        # print(variances_inflate)
-        # print(weights_flat)
+
         belief = GM(means_inflate,variances_inflate,weights_flat)
-        # belief.plot2D()
+
         return belief
-
-
 
 def test_dehydrate_rehydrate():
     # weights = [1]

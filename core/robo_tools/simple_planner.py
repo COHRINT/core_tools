@@ -2,6 +2,16 @@
 
 """ The 'simple' goal planner subclass of GoalPlanner
 """
+
+__author__ = ["Ian Loefgren", "Sierra Williams"]
+__copyright__ = "Copyright 2017, COHRINT"
+__credits__ = ["Nick Sweet", "Nisar Ahmed"]
+__license__ = "GPL"
+__version__ = "2.0.0"
+__maintainer__ = "Ian Loefgren"
+__email__ = "ian.loefgren@colorado.edu"
+__status__ = "Development"
+
 import random
 import logging
 import math

@@ -9,9 +9,9 @@ __copyright__ = "Copyright 2015, Cohrint"
 __credits__ = ["Nick Sweet", "Nisar Ahmed"]
 __license__ = "GPL"
 __version__ = "1.0.0"
-__maintainer__ = "Nick Sweet"
-__email__ = "nick.sweet@colorado.edu"
-__status__ = "Development"
+__maintainer__ = "Ian Loefgren"
+__email__ = "ian.loefgren@colorado.edu"
+__status__ = "Stable"
 
 import logging
 import numpy as np
@@ -540,7 +540,7 @@ class Softmax(object):
                             [np.sin(r), np.cos(r)]
                             ])
 
-        # Create translation (inverted) 
+        # Create translation (inverted)
         translation = -new_pose[0:2]
 
         # <>TODO: add rotation point
@@ -573,7 +573,7 @@ class Softmax(object):
         # Validate inputs
         if rotation_point is None:
             rotation_point = np.zeros(self.weights.shape[1])
-        if translation is None: 
+        if translation is None:
             translation = np.zeros(self.weights.shape[1])
         if rotation is None:
             rotation = np.eye(self.weights.shape[1])
@@ -1118,7 +1118,7 @@ class SoftmaxClass(object):
     """short description of SoftmaxClass
 
     long description of SoftmaxClass
-    
+
     Parameters
     ----------
     param : param_type, optional
@@ -1326,20 +1326,20 @@ class BinarySoftmax(Softmax):
         # Create new binary softmax model for each class
         for class_label in self.softmax_model.class_labels:
             new_softmax = copy.deepcopy(self.softmax_model)
-            
+
             # If MMS model use subclass labels
             if hasattr(new_softmax, 'subclasses'):
                 new_softmax.labels = []
                 for l in new_softmax.subclass_labels:
                     j = l.find('__')
                     if j > -1:
-                        l = l[:j] 
+                        l = l[:j]
                     new_softmax.labels.append(l)
                 del new_softmax.subclasses
             else:
                 new_softmax.labels = new_softmax.class_labels
             del new_softmax.classes
-            
+
             if hasattr(new_softmax,'probs'):
                 del new_softmax.probs
             if hasattr(new_softmax,'subclass_probs'):
@@ -1357,7 +1357,7 @@ class BinarySoftmax(Softmax):
 
     def probability(self, state=None, class_=None):
         # if class_ == None:
-        #     class_ = 
+        #     class_ =
         if 'Not ' in class_:
             not_label = class_
             label = class_.replace('Not ', '')
@@ -1467,9 +1467,9 @@ def pentagon_model():
     labels = ['Interior',
               'Mall Terrace Entrance',
               'Heliport Facade',
-              'South Parking Entrance', 
+              'South Parking Entrance',
               'Concourse Entrance',
-              'River Terrace Entrance', 
+              'River Terrace Entrance',
              ]
     steepness = 5
     sm = Softmax(poly=poly, labels=labels, resolution=0.1, steepness=5)
@@ -1529,14 +1529,14 @@ def binary_intrinsic_space_model(poly=None, bounds=None, allowed_relations=None,
         n, o = normals_from_polygon(container_poly)
 
         steepness = 10
-        outside_weights = n * steepness + ism.weights[1:] 
-        outside_biases = o * steepness + ism.biases[1:] 
+        outside_weights = n * steepness + ism.weights[1:]
+        outside_biases = o * steepness + ism.biases[1:]
 
         labels = ['Outside'] * 4
         # labels = ['Outside_Front','Outside_Left','Outside_Back','Outside_Right']
         ism.add_classes(outside_weights, outside_biases, labels)
 
-    
+
     # <>TODO: remove this debug stub
     # axes = ism.plot(plot_poly=True)
     # patch = PolygonPatch(container_poly, facecolor='white', zorder=5,
@@ -1600,7 +1600,7 @@ def run_demos():
 
     # Binary softmax models ##################################################
 
-    # Binary speed model 
+    # Binary speed model
     bsm = binary_speed_model()
     title='Binary MMS Speed Model'
     logging.info('Building {}'.format(title))
