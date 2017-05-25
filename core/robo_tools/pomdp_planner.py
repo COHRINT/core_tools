@@ -19,7 +19,6 @@ from shapely.geometry import Point, LineString
 import rospy
 
 from core.robo_tools.planner import GoalPlanner
-# from core.robo_tools.InterceptTestGenerator4D import InterceptTestGenerator
 from core.robo_tools.belief_handling import dehydrate_msg, rehydrate_msg
 
 from policy_translator.msg import *
@@ -35,10 +34,6 @@ class PomdpGoalPlanner(GoalPlanner):
 												view_distance=view_distance,
 												use_target_as_goal=use_target_as_goal,
 												goal_pose_topic=goal_pose_topic)
-
-		# self.policy_translator = InterceptTestGenerator() #policy translator object
-
-
 
 	def find_goal_pose(self,positions=None):
 		"""Find goal pose from POMDP policy translator server
@@ -57,7 +52,6 @@ class PomdpGoalPlanner(GoalPlanner):
 		res = None
 
 		if self.robot.belief is not None:
-			# self.robot.belief.plot2D()
 			(msg.weights,msg.means,msg.variances) = dehydrate_msg(self.robot.belief)
 		else:
 			msg.weights = []
@@ -72,19 +66,9 @@ class PomdpGoalPlanner(GoalPlanner):
 			print "Service call failed: %s"%e
 
 
-		# print('!!!!!!!!!!!!weights:')
-		# print(res.response.weights_updated)
-
 		self.robot.belief = rehydrate_msg(res.response.weights_updated,
 										res.response.means_updated,
 										res.response.variances_updated)
-		# print(self.robot.belief)
-		# except AttributeError:
-		# 	self.robot.belief = None
-		# if self.robot.belief is not None:
-			# self.robot.belief.plot2D()
-
-		# print(res)
 
 		goal_pose = res.response.goal_pose
 

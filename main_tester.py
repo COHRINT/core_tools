@@ -1,4 +1,19 @@
 #!/usr/bin/env python
+
+'''
+Core Tools testbed main function. Runs an experiement using parameters specified
+in 'config.yaml'.
+'''
+
+__author__ = ["Ian Loefgren", "Sierra Williams"]
+__copyright__ = "Copyright 2017, Cohrint"
+__credits__ = ["Ian Loefgren","Sierra Williams","Matt Aiken","Nick Sweet"]
+__license__ = "GPL"
+__version__ = "2.0"
+__maintainer__ = "Ian Loefgren"
+__email__ = "ian.loefgren@colorado.edu"
+__status__ = "Development"
+
 import matplotlib
 matplotlib.use('Qt4Agg')
 
@@ -95,9 +110,6 @@ class ReliableVagabond(object):
 			robot.update(i,self.positions)
 			tmpKey = self.positions[robot_name];
 			tmpKey[1] = robot.pose2D._pose;
-		#	print('************************TMPKEY***********************************')
-			#print(tmpKey);
-
 
 			self.positions[robot_name] = tmpKey;
 
