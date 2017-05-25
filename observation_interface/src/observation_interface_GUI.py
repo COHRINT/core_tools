@@ -3,6 +3,15 @@
 '''Interface for entering observations for Cops and Robots POMDP experiments.
 '''
 
+__author__ = "Ian Loefgren"
+__copyright__ = "Copyright 2017, Cohrint"
+__credits__ = ["Ian Loefgren"]
+__license__ = "GPL"
+__version__ = "1.0"
+__maintainer__ = "Ian Loefgren"
+__email__ = "ian.loefgren@colorado.edu"
+__status__ = "Development"
+
 import sys
 import rospy
 import matplotlib
@@ -99,19 +108,11 @@ class ObsInterfaceWidget(QWidget):
         self.quit_btn.clicked.connect(self.close)
         self.vert_layout_obs.addWidget(self.quit_btn)
 
-        # self.horiz_layout_btns.addWidget(self.vert_layout_obs)
-        # self.horiz_layout_btns.addWidget(self.up_btn)
-        # self.horiz_layout_btns.addWidget(self.vert_layout_func)
-        # self.grid_layout.addLayout(self.vert_layout_obs,0,0)
-        # self.grid_layout.addLayout(self.vert_layout_func,0,1)
         self.vert_layout.addLayout(self.vert_layout_obs)
 
-        # self.vert_layout.addLayout(self.horiz_layout2)
-        # self.vert_layout.addWidget(self.near_btn)
         self.main_layout.addLayout(self.vert_layout)
         self.main_layout.addWidget(self.pltCanvas)
         self.setLayout(self.main_layout)
-
 
         self.setGeometry(100,0,250,150)
         self.setFixedSize(950,550)
@@ -143,13 +144,7 @@ class ObsInterfaceWidget(QWidget):
     @pyqtSlot()
     def set_obs_prompt(self):
         text = 'Please make an observation.\n Last observation was {}'.format(self.obs)
-        self.obs_prompt.setStyleSheet("QLabel { color : red; }")
         self.obs_prompt.setText(text)
-        self.obs_prompt.show()
-        time.sleep(1)
-        self.obs_prompt.hide()
-        self.obs_prompt.setStyleSheet("QLabel { color : black; }")
-        self.obs_prompt.show()
 
     @pyqtSlot()
     def clear_obs_prompt(self):
@@ -163,7 +158,6 @@ class ObsInterfaceWidget(QWidget):
         while not self.obs_state:
             PyQt5.QtCore.QCoreApplication.processEvents()
         self.switch_obs_state()
-        # self.plt.update_belief_plot
         msg = self.create_message(self.obs_num)
         return msg
 
