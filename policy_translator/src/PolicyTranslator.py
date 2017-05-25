@@ -114,16 +114,16 @@ class PolicyTranslator:
 			self.problemName = raw_input();
 
 
-		self.belSave = '../beliefs/' + self.problemName + 'Beliefs' + self.belNum + '.npy';
-		alLoad = '../policies/' + self.problemName + 'Alphas' + self.alphaNum + '.npy';
-		modelPath = '../models/'+ self.problemName + 'Model';
+		self.belSave = os.path.dirname(__file__) + '/' + '../beliefs/' + self.problemName + 'Beliefs' + self.belNum + '.npy';
+		alLoad = os.path.dirname(__file__) + '/' + '../policies/' + self.problemName + 'Alphas' + self.alphaNum + '.npy';
+		modelPath = os.path.dirname(__file__) + '/' + '../models/'+ self.problemName + 'Model';
 		modelName = self.problemName+'Model';
 
 
 
 
 		#import the specified model
-		sys.path.append('../models/')
+		sys.path.append(os.path.dirname(__file__) + '/../models/')
 		modelModule = __import__(modelName, globals(), locals(), ['ModelSpec'],0);
 		modelClass = modelModule.ModelSpec;
 
