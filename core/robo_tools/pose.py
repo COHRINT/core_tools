@@ -7,8 +7,8 @@ __copyright__ = "Copyright 2015, Cohrint"
 __credits__ = ["Matthew Aitken", "Nick Sweet", "Nisar Ahmed"]
 __license__ = "GPL"
 __version__ = "1.0.0"
-__maintainer__ = "Ian Loefgren"
-__email__ = "ian.loefgren@colorado.edu"
+__maintainer__ = "Matthew Aitken"
+__email__ = "matthew@raitken.net"
 __status__ = "Development"
 
 import logging

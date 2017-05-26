@@ -2,15 +2,6 @@
 
 #import logging
 
-__author__ = ["Ian Loefgren", "Sierra Williams"]
-__copyright__ = "Copyright 2017, COHRINT"
-__credits__ = ["Nick Sweet", "Nisar Ahmed"]
-__license__ = "GPL"
-__version__ = "2.0.0"
-__maintainer__ = "Ian Loefgren"
-__email__ = "ian.loefgren@colorado.edu"
-__status__ = "Development"
-
 from core.robo_tools.robot import Robot
 from core.robo_tools.planner import MissionPlanner
 
@@ -60,7 +51,6 @@ class Robber(Robot):
 
         self.found_robber = {}
         self.mission_planner = RobberMissionPlanner(self, **mp_cfg)
-        self.belief = None
 
     def update(self,i=0,positions=None):
 

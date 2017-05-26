@@ -17,9 +17,9 @@ __copyright__ = "Copyright 2015, Cohrint"
 __credits__ = ["Nick Sweet", "Nisar Ahmed"]
 __license__ = "GPL"
 __version__ = "1.0.0"
-__maintainer__ = "Ian Loefgren"
-__email__ = "ian.loefgren@colorado.edu"
-__status__ = "Stable"
+__maintainer__ = "Nick Sweet"
+__email__ = "nick.sweet@colorado.edu"
+__status__ = "Development"
 
 import logging
 

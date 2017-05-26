@@ -39,8 +39,8 @@ echo $1 $2 $3 $4
 robots=("deckard" "roy" "pris" "zhora")
 #1 indicates use, positons in arrays match, e.g. use[0]==1 means using deckard
 # needs to match config.yaml!
-use=($1 $2 $3 $4)
-# use=(0 1 1 0)
+#use=($1 $2 $3 $4)
+use=(1 1 0 0)
 count=0
 if [ $new_map == "y" ]; then
   echo 'Enter desired resolution'

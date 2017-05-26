@@ -12,15 +12,6 @@ The interface launches a shell script to then run the experiment. This shell
 script can be changed in the run_experiment() function below.
 '''
 
-__author__ = "Ian Loefgren"
-__copyright__ = "Copyright 2017, Cohrint"
-__credits__ = ["Ian Loefgren"]
-__license__ = "GPL"
-__version__ = "1.0"
-__maintainer__ = "Ian Loefgren"
-__email__ = "ian.loefgren@colorado.edu"
-__status__ = "Development"
-
 import sys
 import yaml
 
@@ -120,6 +111,7 @@ class ParameterWindow(QWidget):
 
         cfg = None
         if file_name[0]:
+            #<>TODO: try except error handling
             try:
                 with open(file_name[0],'r') as stream:
                     cfg = yaml.load(stream)
@@ -167,7 +159,7 @@ class ParameterWindow(QWidget):
                                         str(int(use_robots[1])), \
                                         str(int(use_robots[2])), \
                                         str(int(use_robots[3]))])
-        p.wait()
+        p.wait()                                        
 
     def make_buttons(self):
         pass
@@ -187,7 +179,7 @@ class ParameterWindow(QWidget):
                 self.robot_states[robot][option] = ''
 
     def check_menus(self):
-        '''Iterate over all selections in main and robot parameter menus and store
+        '''Iterate over all slections in main and robot parameter menus and store
         selections in the main and robot parameter dictionaries.
         '''
         for option in self.main_options:

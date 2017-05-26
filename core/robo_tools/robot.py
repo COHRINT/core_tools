@@ -17,9 +17,9 @@ __author__ = "Nick Sweet"
 __copyright__ = "Copyright 2015, Cohrint"
 __credits__ = ["Nick Sweet", "Nisar Ahmed"]
 __license__ = "GPL"
-__version__ = "2.0.0"
-__maintainer__ = "Ian Loefgren"
-__email__ = "ian.loefgren@colorado.edu"
+__version__ = "1.0.0"
+__maintainer__ = "Nick Sweet"
+__email__ = "nick.sweet@colorado.edu"
 __status__ = "Development"
 
 import logging
@@ -77,9 +77,6 @@ class Robot(object):
         # Object attributes
         self.name = name
         self.pose_source = pose_source
-
-        # Robot belief
-        # self.belief = None
 
         # Setup map
         self.map = Map(**map_cfg)
@@ -146,10 +143,6 @@ class Robot(object):
         elif goal_planner_type == 'pomdp':
             from pomdp_planner import PomdpGoalPlanner
             self.goal_planner = PomdpGoalPlanner(self,**goal_planner_cfg)
-
-        elif goal_planner_type == 'audio':
-            from audio_planner import AudioGoalPlanner
-            self.goal_planner = AudioGoalPlanner(self,**goal_planner_cfg)
 
         # elif self.goal_planner_type == 'trajectory':
         #     self.goal_planner

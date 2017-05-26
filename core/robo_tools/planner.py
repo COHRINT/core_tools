@@ -18,9 +18,9 @@ __author__ = ["Matthew Aitken", "Nick Sweet"]
 __copyright__ = "Copyright 2015, Cohrint"
 __credits__ = ["Matthew Aitken", "Nick Sweet", "Nisar Ahmed"]
 __license__ = "GPL"
-__version__ = "2.0.0"
-__maintainer__ = "Ian Loefgren"
-__email__ = "ian.loefgren@colorado.edu"
+__version__ = "1.0.0"
+__maintainer__ = "Matthew Aitken"
+__email__ = "matthew@raitken.net"
 __status__ = "Development"
 
 import logging
@@ -120,7 +120,7 @@ class GoalPlanner(object):
 
     """
     __metaclass__ = ABCMeta
-    types = ['stationary', 'simple', 'trajectory', 'particle', 'MAP', 'pomdp','secondary_test','audio']
+    types = ['stationary', 'simple', 'trajectory', 'particle', 'MAP', 'pomdp','secondary_test']
     goal_statuses = ['stuck',
                      'at goal',
                      'moving to goal',
@@ -301,7 +301,7 @@ class GoalPlanner(object):
                     print 'x_pos: %f'%x_cell
                     print 'y_pos: %f'%y_cell
                     logging.warn("Pose is not feasible. Finding new pose...")
-                    return True
+                    return False
 
         return True
 
@@ -321,8 +321,6 @@ class GoalPlanner(object):
             self.move_base_goal.header.frame_id = '/map'
             self.move_base_goal.header.stamp = rospy.Time.now()
             self.pub.publish(self.move_base_goal)
-
-            print(self.move_base_goal.pose.position)
 
     @abstractmethod
     def update(self,positions=None):

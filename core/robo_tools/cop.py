@@ -2,18 +2,8 @@
 
 #import logging
 
-__author__ = ["Ian Loefgren", "Sierra Williams"]
-__copyright__ = "Copyright 2017, COHRINT"
-__credits__ = ["Nick Sweet", "Nisar Ahmed"]
-__license__ = "GPL"
-__version__ = "2.0.0"
-__maintainer__ = "Ian Loefgren"
-__email__ = "ian.loefgren@colorado.edu"
-__status__ = "Development"
-
 from core.robo_tools.robot import Robot
 from core.robo_tools.planner import MissionPlanner
-from core.robo_tools.gaussianMixtures import GM
 
 class Cop(Robot):
     """The Cop subclass of the generic Robot type.
@@ -59,7 +49,6 @@ class Cop(Robot):
                                      **kwargs)
 
         self.found_cop = {}
-        self.belief = GM([[5,5],[4,4]],[[[20,0],[0,20]],[[20,0],[0,20]]],[0.5,0.5])
         self.mission_planner = CopMissionPlanner(self, **mp_cfg)
 
     def update(self,i=0,positions=None):
