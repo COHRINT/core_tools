@@ -1,0 +1,16 @@
+<!-- Core Tools Interface -->
+<!--
+  Author: Ian Loefgren
+  Last Modified: 5/24/2017
+
+  The ROS launch file for the Core Tools observation interface, including a user
+  interface and associated ROS service.
+-->
+
+<launch>
+
+  <!-- Interface -->
+  <node name="obs_interface" pkg="observation_interface"
+    type="observation_interface_GUI.py" />
+
+</launch>

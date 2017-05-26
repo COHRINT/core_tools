@@ -1,0 +1,18 @@
+<!-- Core Tools Launch -->
+<!--
+  Author: Ian Loefgren
+  Last Modified: 5/24/2017
+
+  The ROS launch file for the Core Tools observation interface and policy
+  translator service.
+-->
+
+<launch>
+
+  <!-- Interface -->
+  <include file="$(find observation_interface)/launch/interface.launch" />
+
+  <!-- Policy Translator -->
+  <include file="$(find policy_translator)/launch/policy_translator.launch" />
+
+</launch>
