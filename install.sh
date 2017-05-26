@@ -28,7 +28,8 @@ done
 
 
 # Define system packages required and Python packages required
-SYSTEM_DEPENDENCIES=("")
+SYSTEM_DEPENDENCIES=("software-properties-common"
+                      "python-pip")
 SYSTEM_DEPENDENCIES_NUM=${#SYSTEM_DEPENDENCIES[@]}
 
 PYTHON_DEPENDENCIES=("PyYAML"
