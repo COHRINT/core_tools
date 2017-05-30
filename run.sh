@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 clear
-tester="./main_tester.py"
+tester="./main.py"
 wall_path="~/catkin_ws/src/cops_and_robots/src/cops_and_robots/map_tools/walls.json"
 model_path="~/catkin_ws/src/cops_and_robots/src/cops_and_robots/map_tools/models.json"
 
