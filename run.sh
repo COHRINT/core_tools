@@ -10,13 +10,13 @@ model_path="~/catkin_ws/src/cops_and_robots/src/cops_and_robots/map_tools/models
 #<>TODO: IMPROVE INTERFACE AND MENU, HAVE MENU SHOW UP CONSISTENTLY
 
 # Startup shell script for Core Tools testbed, including ROS stack
-echo '--------------------------------------------------------------------'
-echo '--------------------------------------------------------------------'
-echo '--------------------- Core Tools Testbed ---------------------------'
-echo '--------------------------------------------------------------------'
-echo '--------------------------------------------------------------------'
+echo '-------------------------------------------------------------------------'
+echo '-------------------------------------------------------------------------'
+echo '------------------------- Core Tools Testbed ----------------------------'
+echo '-------------------------------------------------------------------------'
+echo '-------------------------------------------------------------------------'
 echo ' '
-echo '*** Experiment parameters can be changed in config.yaml ***'
+echo '*** Experiment parameters can be changed in config.yaml or by running gui.py ***'
 echo '*** Maps are generated using new_map.py ***'
 echo ' '
 
